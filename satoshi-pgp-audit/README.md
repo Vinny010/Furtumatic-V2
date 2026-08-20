@@ -166,7 +166,23 @@ verified locally as a genuine curve point (21,953/21,953 on curve, 0 duplicates)
 | Related-key pairs, `delta <= 2048` | **0** |
 | Duplicate public keys | **0** |
 
-A whole class of generator defect, excluded by measurement. See `docs/ONCHAIN.md`.
+And the decisive one - **did Satoshi's key ever reuse a nonce?** The dormant
+coinbases never signed, so they have no nonce to attack. The block-9 key is the sole
+exception: spent, then reused as change down a five-transaction chain beginning with
+the 2009-01-12 transfer to Hal Finney. Re-derived here with this project's own
+parser, sighash reconstruction and secp256k1:
+
+| Check | Result |
+|---|---|
+| Txids authenticated locally | **5 / 5** |
+| Signatures verifying | **5 / 5** |
+| Distinct nonces | **5** |
+| Reused-nonce pairs | **0** |
+
+The bytes authenticate themselves - a txid *is* the double-SHA-256 of the raw
+transaction, so no trust in the data's source is required.
+
+Both classes of generator defect, excluded by measurement. See `docs/ONCHAIN.md`.
 
 ## One honest caveat
 

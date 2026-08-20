@@ -332,6 +332,70 @@ def cmd_verify_message(args) -> int:
     return 0 if res.valid else 1
 
 
+# --------------------------------------------------------------- verify-spendchain
+def cmd_verify_spendchain(args) -> int:
+    from .analysis.spendchain import analyse_chain
+    path = Path(args.input)
+    if not path.exists():
+        _p("No spend-chain data at %s" % path)
+        return 2
+    blob = json.loads(path.read_text())
+    entries = [(e["expected_txid"], e.get("block_height"), e["raw_hex"])
+               for e in blob["entries"]]
+    pubkey = blob["signing_pubkey"]
+    _p("Block-9 coinbase spend chain - independent verification")
+    _p("=" * 74)
+    _p("")
+    _p("Unspent coins publish no signature, so the dormant Patoshi coinbases have")
+    _p("no nonce to attack at all. This key is the exception: it was spent and then")
+    _p("reused as change at each hop, making it the ONLY Satoshi-attributed key")
+    _p("that ever signed more than once - and so the only one where nonce reuse")
+    _p("could have leaked a private key.")
+    _p("")
+    _p("signing key : %s" % pubkey)
+    _p("")
+    f = analyse_chain(entries, pubkey)
+    _p("transactions              : %d" % f.transactions)
+    _p("txids authenticated       : %d/%d" % (f.txids_authenticated, f.transactions))
+    if f.txid_mismatches:
+        for m in f.txid_mismatches:
+            _p("   MISMATCH %s" % m)
+        _p("")
+        _p("Refusing to analyse unauthenticated bytes.")
+        return 1
+    _p("")
+    _p("signatures found          : %d" % len(f.signatures))
+    _p("signatures verified       : %d" % f.verified)
+    _p("distinct nonces (r)       : %d" % f.distinct_r)
+    _p("reused-nonce pairs        : %d" % len(f.reused_nonce_pairs))
+    _p("private key recovered     : %s"
+       % ("YES" if f.recovered_key is not None else "no"))
+    _p("")
+    for rec in f.signatures:
+        _p("  %-16s tx %s..%s  verify=%s"
+           % (rec.label, rec.txid[:10], rec.txid[-6:], rec.verifies))
+        _p("       r = %064x" % rec.r)
+    _p("")
+    for n in f.notes:
+        _p("note: %s" % n)
+    if args.json:
+        Path(args.json).parent.mkdir(parents=True, exist_ok=True)
+        Path(args.json).write_text(json.dumps({
+            "transactions": f.transactions,
+            "txids_authenticated": f.txids_authenticated,
+            "signatures": len(f.signatures),
+            "verified": f.verified,
+            "distinct_r": f.distinct_r,
+            "reused_nonce_pairs": len(f.reused_nonce_pairs),
+            "nonce_safe": f.nonce_safe,
+            "signing_pubkey": pubkey,
+            "r_values": ["%064x" % s.r for s in f.signatures],
+            "notes": f.notes,
+        }, indent=2))
+        _p("wrote %s" % args.json)
+    return 0 if f.nonce_safe else 1
+
+
 # --------------------------------------------------------------- scan-related
 def cmd_scan_related(args) -> int:
     from .analysis.relatedkeys import load_p2pk_csv, scan, with_control
@@ -628,6 +692,12 @@ def main(argv=None) -> int:
     p.add_argument("--signature", required=True)
     p.add_argument("--address")
     p.set_defaults(func=cmd_verify_message)
+
+    p = sub.add_parser("verify-spendchain",
+                       help="verify the block-9 spend chain and test for nonce reuse")
+    p.add_argument("--input", default=str(ROOT / "data" / "block9_spend_chain.json"))
+    p.add_argument("--json", help="write findings here")
+    p.set_defaults(func=cmd_verify_spendchain)
 
     p = sub.add_parser("scan-related",
                        help="scan a P2PK corpus for related (small-offset) keys")

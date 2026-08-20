@@ -60,6 +60,28 @@
         "duplicate_public_keys": 0
       },
       "why_p2pk_matters": "Early coinbase outputs paid to a raw public key rather than to a hash of one. That means the FULL public key is on chain, which is what makes the related-key scan possible at all. Modern P2PKH outputs publish only HASH160(pubkey), so the same analysis cannot be run on them until the coins move."
+    },
+    "block9_spend_chain": {
+      "$comment": "Raw pre-segwit transaction bytes for the block-9 coinbase spend chain. SELF-AUTHENTICATING: a Bitcoin txid is the double-SHA-256 of the raw bytes, so the data proves its own integrity locally and the source needs no trust. Verified 5/5 before analysis.",
+      "path": "data/block9_spend_chain.json",
+      "source_repo": "https://github.com/satoshi-onchain/satoshi-onchain",
+      "source_file": "spend_chain.py",
+      "transactions": 5,
+      "block_heights": [
+        170,
+        181,
+        182,
+        182,
+        183
+      ],
+      "first_txid": "f4184fc596403b9d638783cf57adfe4c75c605f6356fbc91338530e9831e9e16",
+      "signing_pubkey_derived_from": "the chain's own change output, not from the source repository's assertion",
+      "locally_verified": {
+        "txids_authenticated": "5/5",
+        "signatures_verified": "5/5",
+        "distinct_nonces": 5,
+        "reused_nonce_pairs": 0
+      }
     }
   },
   "reference_key_facts": {

@@ -83,6 +83,50 @@ generator defect excluded by measurement rather than left assumed. It is consist
 with the early client drawing each coinbase key independently from OpenSSL's RNG,
 and it is a genuine negative result rather than an absence of effort.
 
+## The decisive test: did Satoshi's key ever reuse a nonce?
+
+Nonce reuse is the one ECDSA failure that leaks a private key from public data:
+
+```
+k = (z1 - z2) / (s1 - s2)      d = (s1*k - z1) / r
+```
+
+For the ~1.1M BTC of dormant Patoshi coinbases the question is moot - those keys
+never signed at all, so no nonce exists to attack. Their attack surface is empty,
+not merely hard.
+
+There is exactly one exception. The **block-9 coinbase key** was spent, and then
+reused as the change key at each hop down a short chain starting with the famous
+2009-01-12 transfer to Hal Finney. That makes it the only Satoshi-attributed key
+that ever signed more than once, and so the only place this attack could ever have
+applied.
+
+```bash
+python -m spa.cli verify-spendchain
+```
+
+**Everything is re-derived locally** - this project's own transaction parser, its
+own SIGHASH_ALL reconstruction, its own secp256k1:
+
+| Check | Result |
+|---|---|
+| Transactions | 5 |
+| Txids authenticated locally (double-SHA-256) | **5 / 5** |
+| Signatures found | 5 |
+| Signatures verifying against the key | **5 / 5** |
+| Distinct nonces (`r`) | **5** |
+| Reused-nonce pairs | **0** |
+| Private key recovered | **no** |
+
+The authentication step is what removes the need to trust the data's source: a
+Bitcoin txid *is* the double-SHA-256 of the raw bytes, so bytes that hash to
+`f4184fc596403b9d...` are the first Bitcoin transaction, whoever handed them over.
+A test flips one bit and confirms the check catches it.
+
+**Result: five signatures, five distinct nonces.** The one Satoshi key that ever
+signed repeatedly did so safely. The closed-form nonce attack - the mechanism behind
+the real Android-2013 thefts - does not apply to it.
+
 ## What this does NOT establish
 
 - **Not an identity claim.** The corpus is labelled "Patoshi" by convention. That

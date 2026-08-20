@@ -142,6 +142,21 @@ def pubkey_to_address(pub: Tuple[int, int], compressed: bool, version: int = 0) 
     return b58check(bytes([version]) + hash160(ser))
 
 
+def parse_uncompressed_pubkey(hex_str: str) -> Optional[Tuple[int, int]]:
+    """Parse a 65-byte uncompressed SEC public key (04 || X || Y)."""
+    h = (hex_str or "").strip()
+    if not h.startswith("04") or len(h) != 130:
+        return None
+    try:
+        pt = (int(h[2:66], 16), int(h[66:], 16))
+    except ValueError:
+        return None
+    x, y = pt
+    if (y * y - (x * x * x + B)) % P != 0:
+        return None
+    return pt
+
+
 def parse_der_signature(der: bytes) -> Tuple[int, int]:
     """Parse a DER-encoded ECDSA signature as found in Bitcoin scriptSigs."""
     if not der or der[0] != 0x30:
