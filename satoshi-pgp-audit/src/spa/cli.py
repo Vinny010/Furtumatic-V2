@@ -332,6 +332,43 @@ def cmd_verify_message(args) -> int:
     return 0 if res.valid else 1
 
 
+# --------------------------------------------------------------- derive-candidates
+def cmd_derive_candidates(args) -> int:
+    from .analysis.candidates import derive_candidates
+    from .audit import load_key
+    _block, kb = load_key(Path(args.key))
+    cands = derive_candidates(kb, kb.self_signatures())
+    _p("Bitcoin address candidates derived from PUBLIC values in this PGP key")
+    _p("=" * 74)
+    _p("")
+    _p("Tests one narrow hypothesis: that a Bitcoin private key was derived from a")
+    _p("value already published in this key. %d motivated candidates, rather than a"
+       % len(cands))
+    _p("blind search of 2^256 where the hit probability would be about 1e-74.")
+    _p("")
+    rows = []
+    for c in cands:
+        for kind, addr in c.addresses.items():
+            rows.append(addr)
+            _p("%-36s %-14s %s" % (addr, kind, c.label))
+    _p("")
+    _p("candidates : %d" % len(cands))
+    _p("addresses  : %d (uncompressed and compressed for each)" % len(rows))
+    if args.output:
+        Path(args.output).parent.mkdir(parents=True, exist_ok=True)
+        Path(args.output).write_text("\n".join(rows) + "\n")
+        _p("")
+        _p("address list -> %s (one per line, ready for bulk lookup)" % args.output)
+    _p("")
+    _p("Only ADDRESSES are written. Derived private keys stay in memory and are")
+    _p("never persisted: this tool reports, it does not build transactions, and a")
+    _p("key that controls funds belongs to whoever generated it.")
+    _p("")
+    _p("EXPECTED RESULT: no hits. A negative result is the useful outcome - it")
+    _p("closes the 'what if they reused something obvious' question by measurement.")
+    return 0
+
+
 # --------------------------------------------------------------- scan-ecdsa
 def cmd_scan_ecdsa(args) -> int:
     """Scan a corpus of ECDSA signatures for reused nonces.
@@ -468,6 +505,12 @@ def main(argv=None) -> int:
     p.add_argument("--signature", required=True)
     p.add_argument("--address")
     p.set_defaults(func=cmd_verify_message)
+
+    p = sub.add_parser("derive-candidates",
+                       help="derive Bitcoin addresses from public values in the key")
+    p.add_argument("--key", default=str(DEFAULT_KEY))
+    p.add_argument("--output", help="write the plain address list here")
+    p.set_defaults(func=cmd_derive_candidates)
 
     p = sub.add_parser("scan-ecdsa",
                        help="scan a JSON corpus of ECDSA signatures for nonce reuse")
