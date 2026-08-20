@@ -139,6 +139,34 @@ the real Android-2013 thefts - does not apply to it.
 - **Not a path to any private key.** A negative result closes a door. It does not
   open one.
 
+## The keyspace-collapse class (the Coldcard shape)
+
+Every real theft of Bitcoin that did not break the curve broke the RNG, collapsing
+the private-key space to something searchable: Debian OpenSSL (~2^15), brainwallets
+(dictionary), the 2026 Coldcard breach (seed derived from device serial, ~2^40).
+`spa.analysis.weakentropy` reproduces this on **synthetic** keys - deliberately
+generic, never a reconstruction of any vendor's live derivation, so it studies the
+defect without becoming a targeting tool for an active heist.
+
+```bash
+python -m spa.cli weak-entropy
+```
+
+It establishes two things and honestly bounds a third:
+
+1. **Collapse is brute-forceable from public keys.** Synthetic keys drawn from a
+   14-bit space are recovered 4/4 by enumeration. Cost scales as 2^bits: ~2^40 for
+   Coldcard (hours on commodity hardware), ~2^256 for a healthy key (impossible).
+2. **The related-key scan is a working detector** - it fires on sequential keys, so
+   its zero result on the 21,953 Patoshi keys is a real measurement, not a broken
+   scan.
+3. **Honest scope limit.** Two collapse shapes exist. SEQUENTIAL/OFFSET keys land
+   close together and the related-key scan catches them. HASHED low-entropy keys
+   (brainwallet / Coldcard-serial) are scattered by their KDF and the scan is
+   **blind** to them - detecting those needs the specific derivation, infeasible
+   blind. So the Patoshi negative rules out the sequential class, not the hashed
+   one. A test documents this blind spot rather than hiding it.
+
 ## Relationship to the PGP side of this project
 
 None, cryptographically - and that separation is enforced in code

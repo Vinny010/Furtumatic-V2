@@ -332,6 +332,46 @@ def cmd_verify_message(args) -> int:
     return 0 if res.valid else 1
 
 
+# --------------------------------------------------------------- weak-entropy
+def cmd_weak_entropy(args) -> int:
+    from .analysis.weakentropy import (demonstrate_recovery,
+                                       positive_control_for_related_scan)
+    _p("Keyspace-collapse reproduction (synthetic keys only)")
+    _p("=" * 74)
+    _p("")
+    _p("Models the failure class behind Debian OpenSSL, Android SecureRandom,")
+    _p("brainwallets, and the 2026 Coldcard breach: the curve is never broken, the")
+    _p("generator's real entropy is. Every key here is synthetic and controls")
+    _p("nothing; no real wallet, seed, or address is touched.")
+    _p("")
+    _p("--- 1. keyspace collapse is brute-forceable from public keys ---")
+    r = demonstrate_recovery(entropy_bits=args.bits, key_count=args.keys)
+    _p("nominal strength   : %d bits" % r.nominal_bits)
+    _p("collapsed to       : %d bits (2^%d smaller)"
+       % (r.entropy_bits, r.collapse_factor_log2))
+    _p("keys recovered     : %d/%d" % (r.brute_force_recovered, r.keys_generated))
+    for n in r.notes:
+        _p("  %s" % n)
+    _p("")
+    _p("--- 2. positive control: does our detector catch it? ---")
+    c = positive_control_for_related_scan()
+    _p("sequential keys    : %d" % c.keys)
+    _p("related pairs found : %d" % c.related_pairs)
+    _p("DETECTOR FIRED     : %s" % ("YES" if c.detector_fired else "NO"))
+    for n in c.notes:
+        _p("  %s" % n)
+    _p("")
+    _p("What this proves, precisely:")
+    _p("  * The related-key scan works, so its ZERO result on 21,953 Patoshi keys")
+    _p("    genuinely rules out the SEQUENTIAL / OFFSET collapse class.")
+    _p("  * It does NOT rule out a HASHED low-entropy collapse (the Coldcard shape),")
+    _p("    which scatters keys. Detecting that needs the specific derivation and is")
+    _p("    infeasible blind - an honest limit, not a closed door.")
+    _p("  * Separately ruled out for Satoshi's keys: nonce reuse (verify-spendchain),")
+    _p("    duplicate keys (0), and - for the PGP key - a degenerate GnuPG RNG.")
+    return 0 if c.detector_fired else 1
+
+
 # --------------------------------------------------------------- verify-spendchain
 def cmd_verify_spendchain(args) -> int:
     from .analysis.spendchain import analyse_chain
@@ -692,6 +732,13 @@ def main(argv=None) -> int:
     p.add_argument("--signature", required=True)
     p.add_argument("--address")
     p.set_defaults(func=cmd_verify_message)
+
+    p = sub.add_parser("weak-entropy",
+                       help="reproduce the keyspace-collapse failure class (synthetic)")
+    p.add_argument("--bits", type=int, default=20,
+                   help="collapsed entropy bits for the recovery demo")
+    p.add_argument("--keys", type=int, default=5)
+    p.set_defaults(func=cmd_weak_entropy)
 
     p = sub.add_parser("verify-spendchain",
                        help="verify the block-9 spend chain and test for nonce reuse")
