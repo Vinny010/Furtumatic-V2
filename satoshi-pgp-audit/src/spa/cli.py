@@ -332,6 +332,58 @@ def cmd_verify_message(args) -> int:
     return 0 if res.valid else 1
 
 
+# --------------------------------------------------------------- patoshi
+def cmd_patoshi(args) -> int:
+    from .analysis.patoshi import analyse, load_blocks, nonce_histogram
+    path = Path(args.input)
+    if not path.exists():
+        _p("No block data at %s" % path)
+        _p("")
+        _p("This environment's egress policy blocks every blockchain API, so the")
+        _p("data has to come in through a channel that is allowed (GitHub is).")
+        _p("Fetch it on a machine without the proxy, then commit it:")
+        _p("")
+        _p("  python3 tools/fetch_early_blocks.py --end 50000 --out %s" % path)
+        _p("  git add %s && git commit -m 'Add early block data' && git push" % path)
+        _p("")
+        return 2
+    blocks = load_blocks(path)
+    f = analyse(blocks, nonce_band=args.band)
+    _p("Patoshi-pattern analysis")
+    _p("=" * 74)
+    _p("blocks analysed        : %d" % f.blocks_analysed)
+    _p("with parsed ExtraNonce : %d" % f.blocks_with_extranonce)
+    _p("nonce band threshold   : %.2f of the 32-bit space" % f.nonce_band)
+    _p("")
+    _p("cluster blocks         : %d (%.1f%% of sample)"
+       % (f.cluster_size, 100 * f.cluster_share))
+    _p("other blocks           : %d" % len(f.other_blocks))
+    _p("monotone ExtraNonce runs in cluster : %d" % f.slope_segments)
+    _p("subsidy attributable to cluster     : %.0f BTC" % f.estimated_btc)
+    _p("")
+    _p("Header-nonce distribution (uniform mining gives a flat profile):")
+    hist = nonce_histogram(blocks, bins=args.bins)
+    peak = max((c for _, c in hist), default=1) or 1
+    for centre, count in hist:
+        bar = "#" * int(50 * count / peak)
+        _p("  %.2f  %-50s %d" % (centre, bar, count))
+    _p("")
+    for n in f.notes:
+        _p("note: %s" % n)
+    if args.json:
+        Path(args.json).write_text(json.dumps({
+            "blocks_analysed": f.blocks_analysed,
+            "cluster_size": f.cluster_size,
+            "cluster_share": f.cluster_share,
+            "estimated_btc": f.estimated_btc,
+            "slope_segments": f.slope_segments,
+            "cluster_blocks": f.cluster_blocks,
+        }, indent=2))
+        _p("")
+        _p("wrote %s" % args.json)
+    return 0
+
+
 # --------------------------------------------------------------- derive-candidates
 def cmd_derive_candidates(args) -> int:
     from .analysis.candidates import derive_candidates
@@ -505,6 +557,15 @@ def main(argv=None) -> int:
     p.add_argument("--signature", required=True)
     p.add_argument("--address")
     p.set_defaults(func=cmd_verify_message)
+
+    p = sub.add_parser("patoshi",
+                       help="mining-fingerprint analysis over early block data")
+    p.add_argument("--input", default=str(ROOT / "data" / "early_blocks.csv"))
+    p.add_argument("--band", type=float, default=0.45,
+                   help="nonce-space fraction defining the restricted band")
+    p.add_argument("--bins", type=int, default=20)
+    p.add_argument("--json", help="write findings here")
+    p.set_defaults(func=cmd_patoshi)
 
     p = sub.add_parser("derive-candidates",
                        help="derive Bitcoin addresses from public values in the key")
