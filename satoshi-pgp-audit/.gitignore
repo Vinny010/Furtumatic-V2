@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+
+# Pinned upstream source is FETCHED, not vendored: `make setup` clones it at the
+# recorded commit and verifies the tree hash. Committing it here would add ~700
+# files and weaken provenance, since the git object ids are the real anchor.
+data/gnupg-src/
+
+# Generated C bridge artifacts.
+*.gen.c
+/tmp/spa-cbridge/

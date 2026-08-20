@@ -1,0 +1,590 @@
+{
+  "target": {
+    "fingerprint": "DE4E FCA3 E1AB 9E41 CE96 CECB 18C0 9E86 5EC9 48A1",
+    "fingerprint_raw": "DE4EFCA3E1AB9E41CE96CECB18C09E865EC948A1",
+    "key_id": "18C09E865EC948A1",
+    "created_utc": "2008-10-30 18:19:19 UTC",
+    "algorithm": "DSA-1024",
+    "uids": [
+      "Satoshi Nakamoto <satoshin@gmx.com>"
+    ],
+    "subkeys": [
+      {
+        "algo": "Elgamal (Encrypt-Only)",
+        "bits": 2048,
+        "key_id": "CF1857E6D6AAA69F"
+      }
+    ],
+    "signature_packets_total": 225,
+    "signatures_by_this_key": 3,
+    "signatures_verified": 3,
+    "bottom_line": "The key is exactly what it appears to be: a structurally sound DSA-1024 key generated on 2008-10-30, whose three self-signatures all verify. GnuPG 1.4.7 does contain a genuine RNG defect (CVE-2016-6313), and this project reproduces it deterministically against synthetic pools. It does not reach this key. The attack consumes raw generator output, and a public key contains none - 0 bytes against a requirement of 580. No repeated nonce exists among the published signatures, and at three signatures the corpus is an order of magnitude below any lattice attack. The one genuinely soft point is evidentiary rather than mathematical: the 'GnuPG v1.4.7 (MingW32)' attribution rides in an unsigned armor header, so it is a historical claim, not something the key itself attests."
+  },
+  "provenance": {
+    "$comment": "Every artifact this project reasons about is pinned here. Nothing in the analysis path is fetched unpinned at runtime; verify_provenance.py re-checks each digest before any module is allowed to consume the artifact.",
+    "generated_by": "satoshi-pgp-audit",
+    "artifacts": {
+      "satoshi_public_key": {
+        "path": "data/keys/satoshi_5EC948A1.asc",
+        "sha256": "68e8397a3689b19efa455cbd65ead365de11e4bac6c88fdd196a806ae89520d1",
+        "retrieved_from": "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x18C09E865EC948A1&options=mr",
+        "retrieved_utc": "2026-08-20T22:00:00Z",
+        "expected_fingerprint": "DE4EFCA3E1AB9E41CE96CECB18C09E865EC948A1",
+        "expected_keyid": "18C09E865EC948A1",
+        "expected_created_unix": 1225390759,
+        "expected_created_utc": "2008-10-30T18:19:19Z",
+        "note": "Keyserver copies accumulate unauthenticated third-party signature packets. The digest above pins THIS retrieval; the fingerprint is the trust anchor and is recomputed from the primary key packet by spa.openpgp.fingerprint. Only the fingerprint is authoritative - the surrounding packets are attacker-appendable by design of the SKS protocol."
+      },
+      "gnupg_1_4_7_source": {
+        "upstream_git": "https://github.com/gpg/gnupg.git",
+        "$comment_mirror": "Official GnuPG git mirror. The canonical tarball host gnupg.org was unreachable from the build environment used to author this project (egress policy), so the source is pinned by git object id instead - a strictly stronger binding than a tarball checksum, since the tag/commit/tree ids are content-addressed over the whole tree.",
+        "tag": "gnupg-1.4.7",
+        "tag_object_sha1": "a35b786e2a3227485c4cdb4de0d1589f4c4c97f8",
+        "commit_sha1": "7cb81bb3ef2769812678719d440aa844c0bb889a",
+        "tree_sha1": "c9cb62c8dcee5935c4ad86b190d171beec5035d0",
+        "commit_date": "2007-03-05T10:22:56+00:00",
+        "commit_author": "Werner Koch",
+        "declared_version": "1.4.7",
+        "version_source": "configure.ac: m4_define([my_version], [1.4.7])",
+        "upstream_tarball": {
+          "$comment": "Recorded for cross-checking on networks that can reach gnupg.org. NOT verified by this project - left null rather than guessed. tools/verify_tarball.sh fills and checks these when the host is reachable.",
+          "url": "https://gnupg.org/ftp/gcrypt/gnupg/gnupg-1.4.7.tar.bz2",
+          "sha256": null,
+          "verified": false
+        }
+      },
+      "gnupg_1_4_21_source": {
+        "$comment": "First release containing the CVE-2016-6313 fix. Used as the differential reference implementation.",
+        "upstream_git": "https://github.com/gpg/gnupg.git",
+        "tag": "gnupg-1.4.21"
+      }
+    },
+    "reference_key_facts": {
+      "$comment": "Facts asserted by the project brief, each marked with how this project verified it.",
+      "key_id": {
+        "value": "5EC948A1",
+        "verified": true,
+        "how": "parsed from primary public-key packet"
+      },
+      "fingerprint": {
+        "value": "DE4E FCA3 E1AB 9E41 CE96 CECB 18C0 9E86 5EC9 48A1",
+        "verified": true,
+        "how": "SHA-1 over RFC4880 5.2.4 fingerprint preimage, recomputed locally"
+      },
+      "created": {
+        "value": "2008-10-30",
+        "verified": true,
+        "how": "creation timestamp field of primary key packet"
+      },
+      "generator_gnupg_1_4_7_mingw32": {
+        "value": "GnuPG v1.4.7 (MingW32)",
+        "verified": false,
+        "how": "NOT verifiable from the key material. The 'Version:' armor header that carries this string is a property of the ASCII-armor envelope of a particular archived copy, not of the key packets, and it is neither signed nor covered by the fingerprint. This project treats the generator attribution as an UNAUTHENTICATED HISTORICAL CLAIM sourced from archived forum/mail copies, and reports every conclusion that depends on it as conditional. See docs/THREAT_MODEL.md."
+      }
+    }
+  },
+  "environment": {
+    "python": "3.11.15",
+    "platform": "Linux-6.18.5-fc-v20-x86_64-with-glibc2.39",
+    "source_digest_sha256": "68e8397a3689b19efa455cbd65ead365de11e4bac6c88fdd196a806ae89520d1"
+  },
+  "categories": {
+    "A": {
+      "title": "Vulnerabilities that definitely apply to the historical software",
+      "meaning": "The defect is present in code built from GnuPG 1.4.7. This is a statement about the SOFTWARE, and carries no implication that any particular key is affected.",
+      "findings": [
+        {
+          "category": "A",
+          "category_title": "Vulnerabilities that definitely apply to the historical software",
+          "title": "CVE-2008-1530 (fixed in GnuPG 1.4.9)",
+          "summary": "Import-path defect; no impact on the generation of this key.",
+          "evidence": [
+            "Upstream NEWS (1.4.9): * Fixed possible memory corruption bug in 1.4.8 while importing OpenPGP keys. [CVE-2008-1530]"
+          ],
+          "requires": "the victim imports a crafted key",
+          "reproduce_with": "",
+          "references": [
+            "CVE-2008-1530"
+          ],
+          "confidence": "high",
+          "data": {
+            "fixed_in": "1.4.9",
+            "fixed_date": "2008-03-26"
+          }
+        },
+        {
+          "category": "A",
+          "category_title": "Vulnerabilities that definitely apply to the historical software",
+          "title": "CVE-2013-4402 (fixed in GnuPG 1.4.15)",
+          "summary": "Parser resource exhaustion. No confidentiality impact on keys.",
+          "evidence": [
+            "Upstream NEWS (1.4.15): * Fixed possible infinite recursion in the compressed packet parser. [CVE-2013-4402]"
+          ],
+          "requires": "the victim parses a crafted nested compressed packet",
+          "reproduce_with": "",
+          "references": [
+            "CVE-2013-4402"
+          ],
+          "confidence": "high",
+          "data": {
+            "fixed_in": "1.4.15",
+            "fixed_date": "2013-10-04"
+          }
+        },
+        {
+          "category": "A",
+          "category_title": "Vulnerabilities that definitely apply to the historical software",
+          "title": "CVE-2014-4617 (fixed in GnuPG 1.4.17)",
+          "summary": "Denial of service in the decompressor. Present in 1.4.7 and therefore a genuine defect of the historical software, but it cannot disclose key material or influence key generation.",
+          "evidence": [
+            "Upstream NEWS (1.4.17): * Avoid DoS due to garbled compressed data packets. [CVE-2014-4617]"
+          ],
+          "requires": "the victim parses an attacker-supplied compressed packet",
+          "reproduce_with": "",
+          "references": [
+            "CVE-2014-4617"
+          ],
+          "confidence": "high",
+          "data": {
+            "fixed_in": "1.4.17",
+            "fixed_date": "2014-06-23"
+          }
+        },
+        {
+          "category": "A",
+          "category_title": "Vulnerabilities that definitely apply to the historical software",
+          "title": "CVE-2018-12020 (fixed in GnuPG 1.4.23)",
+          "summary": "'SigSpoof' - unsanitised filename in diagnostic output can fake a verification result in a terminal. Affects how signatures are PRESENTED, never how they are generated. Worth noting for anyone assessing archived screenshots of signature verification as evidence.",
+          "evidence": [
+            "Upstream NEWS (1.4.23): * gpg: Sanitize the diagnostic output of the original file name in verbose mode. [#4012,CVE-2018-12020]"
+          ],
+          "requires": "the victim displays verbose output for an attacker-supplied file",
+          "reproduce_with": "",
+          "references": [
+            "CVE-2018-12020"
+          ],
+          "confidence": "high",
+          "data": {
+            "fixed_in": "1.4.23",
+            "fixed_date": "2018-06-11"
+          }
+        }
+      ]
+    },
+    "B": {
+      "title": "Vulnerabilities that theoretically apply but require internal state or observations that do not exist publicly",
+      "meaning": "The mechanism is real, but exploiting it needs something that was never published and cannot be recovered now - internal generator state, a co-located process, or physical proximity in 2008.",
+      "findings": [
+        {
+          "category": "B",
+          "category_title": "Vulnerabilities that theoretically apply but require internal state or observations that do not exist publicly",
+          "title": "CVE-2014-3591 (fixed in GnuPG 1.4.19)",
+          "summary": "This one does touch the right algorithm - the key carries a 2048-bit Elgamal encryption subkey, and 1.4.7 predates ciphertext blinding. But it is a physical side channel requiring proximity to the machine while it decrypts. That observation window closed in 2008 and left no public residue.",
+          "evidence": [
+            "Upstream NEWS (1.4.19): * Use ciphertext blinding for Elgamal decryption [CVE-2014-3591]. See http://www.cs.tau.ac.il/~tromer/radioexp/ for details."
+          ],
+          "requires": "RF side-channel observation during Elgamal decryption on the original hardware",
+          "reproduce_with": "",
+          "references": [
+            "CVE-2014-3591"
+          ],
+          "confidence": "high",
+          "data": {
+            "fixed_in": "1.4.19",
+            "fixed_date": "2015-02-27"
+          }
+        },
+        {
+          "category": "B",
+          "category_title": "Vulnerabilities that theoretically apply but require internal state or observations that do not exist publicly",
+          "title": "CVE-2015-0837 (fixed in GnuPG 1.4.19)",
+          "summary": "Data-dependent timing in modular exponentiation. Applies to the software, but needs a co-resident attacker process at the time of the secret-key operation. No public artefact records such observations.",
+          "evidence": [
+            "Upstream NEWS (1.4.19): * Fixed data-dependent timing variations in modular exponentiation [related to CVE-2015-0837, Last-Level Cache Side-Channel Attacks are Practical]."
+          ],
+          "requires": "last-level cache observation from a co-located process",
+          "reproduce_with": "",
+          "references": [
+            "CVE-2015-0837"
+          ],
+          "confidence": "high",
+          "data": {
+            "fixed_in": "1.4.19",
+            "fixed_date": "2015-02-27"
+          }
+        },
+        {
+          "category": "B",
+          "category_title": "Vulnerabilities that theoretically apply but require internal state or observations that do not exist publicly",
+          "title": "CVE-2016-6313 (fixed in GnuPG 1.4.21)",
+          "summary": "The defect is in the code path that produces every random value GnuPG generates, so software built from 1.4.7 is unambiguously affected and this project reproduces the predictor deterministically. Exploitation against this key is a separate question and fails on prerequisites: an OpenPGP public key publishes no raw generator output, so the attacker starts from 0 of the required 580 bytes.",
+          "evidence": [
+            "Upstream NEWS (1.4.21): * Fix critical security bug in the RNG [CVE-2016-6313]. An attacker who obtains 580 bytes from the standard RNG can trivially predict the next 20 bytes of output. Problem detected by Felix D\u00f6rre and Vladimir Klebanov, KIT."
+          ],
+          "requires": "580 consecutive bytes of raw RNG output from one mixed pool",
+          "reproduce_with": "",
+          "references": [
+            "CVE-2016-6313"
+          ],
+          "confidence": "high",
+          "data": {
+            "fixed_in": "1.4.21",
+            "fixed_date": "2016-08-17"
+          }
+        }
+      ]
+    },
+    "C": {
+      "title": "Anomalies actually visible in the public key and signatures",
+      "meaning": "Something measurable in the published material. Listed whether or not it is security-relevant, with its significance stated.",
+      "findings": [
+        {
+          "category": "C",
+          "category_title": "Anomalies actually visible in the public key and signatures",
+          "title": "Key uses DSA-1024/SHA-1, below modern minimums",
+          "summary": "The key is DSA with a 1024-bit p and 160-bit q, and its self-signatures use SHA1. Both were the ordinary defaults in 2008 and neither is an anomaly for the period, but both fall below what NIST now accepts. This is a statement about margin, not about a break: no public method recovers a 160-bit DSA private key from its public half.",
+          "evidence": [
+            "All 10 parameter checks pass: p size, q size, q divides p-1, g range, y range, g has order q, y in subgroup, g != 1, q is prime, p is prime",
+            "q is a verified 160-bit prime; p is a verified 1024-bit prime.",
+            "g generates the order-q subgroup and y lies within it."
+          ],
+          "requires": "",
+          "reproduce_with": "",
+          "references": [],
+          "confidence": "high",
+          "data": {
+            "parameter_checks": [
+              {
+                "name": "p size",
+                "passed": true,
+                "detail": "p is 1024 bits"
+              },
+              {
+                "name": "q size",
+                "passed": true,
+                "detail": "q is 160 bits"
+              },
+              {
+                "name": "q divides p-1",
+                "passed": true,
+                "detail": "q | (p-1)"
+              },
+              {
+                "name": "g range",
+                "passed": true,
+                "detail": "1 < g < p"
+              },
+              {
+                "name": "y range",
+                "passed": true,
+                "detail": "1 < y < p"
+              },
+              {
+                "name": "g has order q",
+                "passed": true,
+                "detail": "g^q = 1 mod p"
+              },
+              {
+                "name": "y in subgroup",
+                "passed": true,
+                "detail": "y^q = 1 mod p"
+              },
+              {
+                "name": "g != 1",
+                "passed": true,
+                "detail": "g is not the identity"
+              },
+              {
+                "name": "q is prime",
+                "passed": true,
+                "detail": "Miller-Rabin, 64 rounds"
+              },
+              {
+                "name": "p is prime",
+                "passed": true,
+                "detail": "Miller-Rabin, 64 rounds"
+              }
+            ]
+          }
+        },
+        {
+          "category": "C",
+          "category_title": "Anomalies actually visible in the public key and signatures",
+          "title": "One 2008 signature appears twice, re-encoded by modern tooling",
+          "summary": "The keyblock carries the subkey-binding signature twice. The two packets are not byte-identical, but they share both r and s and hash the same data, so they are ONE signature in two encodings - not a reused nonce. The difference is confined to the unhashed area: 1 packet(s) carry subpacket 33 (issuer-fingerprint), which postdates 2008 and which GnuPG 1.4.7 could not emit. That is direct evidence this copy passed through GnuPG 2.1-or-later tooling, and it corroborates that the armor metadata no longer reflects the original generator. Because the unhashed area is not covered by the signature, both packets still verify.",
+          "evidence": [
+            "Duplicate (r,s) pairs: 1",
+            "Unique signature values among 3 self-signatures: 2",
+            "Packets carrying issuer-fingerprint (subpacket 33): 1",
+            "Both encodings verify against the primary key."
+          ],
+          "requires": "",
+          "reproduce_with": "",
+          "references": [],
+          "confidence": "high",
+          "data": {
+            "duplicates": 1,
+            "unique_values": 2
+          }
+        },
+        {
+          "category": "C",
+          "category_title": "Anomalies actually visible in the public key and signatures",
+          "title": "Keyblock carries 222 third-party signature packets",
+          "summary": "Of 225 signature packets on this keyserver copy, only 3 were made by the key itself. The remaining 222 are unauthenticated third-party packets that anyone could append - the well-known certificate-flooding property of the SKS protocol. They tell us nothing about the key's owner and contribute no material to nonce analysis, because they were produced by other people's keys and other people's generators.",
+          "evidence": [
+            "Signatures by 0x18C09E865EC948A1: 3",
+            "Third-party packets: 222",
+            "Malformed packets encountered: 0"
+          ],
+          "requires": "",
+          "reproduce_with": "",
+          "references": [],
+          "confidence": "high",
+          "data": {
+            "total": 225,
+            "self": 3,
+            "third_party": 222
+          }
+        },
+        {
+          "category": "C",
+          "category_title": "Anomalies actually visible in the public key and signatures",
+          "title": "Generator attribution 'GnuPG v1.4.7 (MingW32)' is not authenticated",
+          "summary": "The version string that attributes this key to GnuPG 1.4.7 on MingW32 lives in an ASCII-armor 'Version:' header. Armor headers are outside the packet stream: not signed, not covered by the fingerprint, and rewritten by every tool the material passes through. This copy's header reads 'Hockeypuck 2.2' - the keyserver's software, not the generator's. The 1.4.7 attribution therefore rests on archived copies of the armor, which is historical evidence rather than cryptographic evidence.",
+          "evidence": [
+            "Armor header on this copy: 'Hockeypuck 2.2'",
+            "Armor CRC-24 valid: True",
+            "The fingerprint covers only the primary key packet (RFC 4880 s12.2)."
+          ],
+          "requires": "",
+          "reproduce_with": "",
+          "references": [],
+          "confidence": "high",
+          "data": {}
+        },
+        {
+          "category": "C",
+          "category_title": "Anomalies actually visible in the public key and signatures",
+          "title": "All self-signature timestamps coincide with key creation",
+          "summary": "Every self-signature carries creation time 2008-10-30 18:19:19 UTC, identical to the primary key's. That is the expected signature of a single uninterrupted `gpg --gen-key` run and indicates no later re-certification. It also means the key's entire public signature history was produced in one session, which bounds how much generator output could ever have been exposed.",
+          "evidence": [
+            "Primary key created: 2008-10-30 18:19:19 UTC",
+            "positive certification: 2008-10-30 18:19:19 UTC",
+            "subkey binding: 2008-10-30 18:19:19 UTC",
+            "subkey binding: 2008-10-30 18:19:19 UTC"
+          ],
+          "requires": "",
+          "reproduce_with": "",
+          "references": [],
+          "confidence": "high",
+          "data": {}
+        },
+        {
+          "category": "C",
+          "category_title": "Anomalies actually visible in the public key and signatures",
+          "title": "MPI encodings are RFC-conformant",
+          "summary": "Every MPI in the primary key declares a bit length exactly matching its value, as RFC 4880 requires and as GnuPG has always emitted. Nothing here suggests hand-crafted or rewritten packets.",
+          "evidence": [
+            "p: 1024 bits declared, 1024 actual",
+            "q: 160 bits declared, 160 actual",
+            "g: 1023 bits declared, 1023 actual",
+            "y: 1019 bits declared, 1019 actual"
+          ],
+          "requires": "",
+          "reproduce_with": "",
+          "references": [],
+          "confidence": "high",
+          "data": {}
+        }
+      ]
+    },
+    "D": {
+      "title": "Findings reproduced successfully with synthetic keys",
+      "meaning": "Demonstrated end-to-end in this repository against keys and pools created for the experiment. Includes a reproduction command.",
+      "findings": [
+        {
+          "category": "D",
+          "category_title": "Findings reproduced successfully with synthetic keys",
+          "title": "CVE-2016-6313 predictor reproduced deterministically",
+          "summary": "The 580-bytes-predict-20-bytes relation was derived from the pinned 1.4.7 source and reproduced on synthetic pools. It succeeds on every trial against 1.4.7 and never against 1.4.21, matching upstream's own description of the defect.",
+          "evidence": [
+            "rmd160_mixblock() exports the RIPEMD-160 chaining state into the pool, so pool block B_n IS the hash state after iteration n.",
+            "In 1.4.7 the final iteration wraps and reads pool[0:44], which already holds the new B0/B1/B2 - so B29 = transform(state=B28, B28||B0||B1||B2[0:4]).",
+            "1.4.21 absorbs 64 contiguous bytes and therefore consumes the OLD B29 before overwriting it, which breaks the relation."
+          ],
+          "requires": "",
+          "reproduce_with": "python -m spa.cli lab-cve --trials 500",
+          "references": [
+            "CVE-2016-6313"
+          ],
+          "confidence": "high",
+          "data": {}
+        },
+        {
+          "category": "D",
+          "category_title": "Findings reproduced successfully with synthetic keys",
+          "title": "Python pool model validated byte-for-byte against real GnuPG C code",
+          "summary": "mix_pool() and the RIPEMD-160 compression function are extracted programmatically from the pinned upstream trees, compiled, and compared against the Python model. Both 1.4.7 and 1.4.21 agree exactly, so the model is a faithful stand-in for the historical implementation.",
+          "evidence": [
+            "Differential test: tests/test_differential_c.py",
+            "Functions are lifted from source by script, never hand-copied."
+          ],
+          "requires": "",
+          "reproduce_with": "python -m spa.cli lab-differential",
+          "references": [],
+          "confidence": "high",
+          "data": {}
+        }
+      ]
+    },
+    "E": {
+      "title": "Conclusively ruled out",
+      "meaning": "Excluded by evidence, not by assumption. Each entry names the fact that excludes it.",
+      "findings": [
+        {
+          "category": "E",
+          "category_title": "Conclusively ruled out",
+          "title": "CVE-2013-4242 (fixed in GnuPG 1.4.14)",
+          "summary": "RSA-specific side channel; not reachable for a DSA/Elgamal key.",
+          "evidence": [
+            "Upstream NEWS (1.4.14): * Mitigate the Yarom/Falkner flush+reload side-channel attack on RSA secret keys. See <http://eprint.iacr.org/2013/448>. [CVE-2013-4242]"
+          ],
+          "requires": "co-resident process performing flush+reload during RSA operations",
+          "reproduce_with": "",
+          "references": [
+            "CVE-2013-4242"
+          ],
+          "confidence": "high",
+          "data": {
+            "fixed_in": "1.4.14",
+            "fixed_date": "2013-07-25"
+          }
+        },
+        {
+          "category": "E",
+          "category_title": "Conclusively ruled out",
+          "title": "CVE-2013-4576 (fixed in GnuPG 1.4.16)",
+          "summary": "RSA-specific, and requires physical presence at the machine in 2008. Neither condition can be met retrospectively from public key material.",
+          "evidence": [
+            "Upstream NEWS (1.4.16): * Fixed the RSA Key Extraction via Low-Bandwidth Acoustic Cryptanalysis attack as described by Genkin, Shamir, and Tromer. See <http://www.cs.tau.ac.il/~tromer/acoustic/>. [CVE-2013-4576]"
+          ],
+          "requires": "acoustic emanations captured near the machine during RSA decryption",
+          "reproduce_with": "",
+          "references": [
+            "CVE-2013-4576"
+          ],
+          "confidence": "high",
+          "data": {
+            "fixed_in": "1.4.16",
+            "fixed_date": "2013-12-18"
+          }
+        },
+        {
+          "category": "E",
+          "category_title": "Conclusively ruled out",
+          "title": "CVE-2017-7526 (fixed in GnuPG 1.4.22)",
+          "summary": "Scoped to RSA sliding-window exponentiation. The key under study is DSA with an Elgamal subkey and performs no RSA secret-key operation, so the vulnerable code is never reached.",
+          "evidence": [
+            "Upstream NEWS (1.4.22): * Mitigate a flush+reload side-channel attack on RSA secret keys dubbed \"Sliding right into disaster\". For details see <https://eprint.iacr.org/2017/627>. [CVE-2017-7526]"
+          ],
+          "requires": "local flush+reload cache observation during RSA secret-key use",
+          "reproduce_with": "",
+          "references": [
+            "CVE-2017-7526"
+          ],
+          "confidence": "high",
+          "data": {
+            "fixed_in": "1.4.22",
+            "fixed_date": "2017-07-19"
+          }
+        },
+        {
+          "category": "E",
+          "category_title": "Conclusively ruled out",
+          "title": "Nonce reuse across the key's published signatures",
+          "summary": "The key made 3 signature packets carrying 2 distinct signature values, and every one verifies. No r repeats with a differing s, which is the definition of nonce reuse and the one nonce failure detectable from purely public data. This rules out closed-form private-key recovery from the published signatures. (The one repeated r is a duplicate encoding of a single signature, not a reused nonce - see Category C.)",
+          "evidence": [
+            "Signatures by this key: 3",
+            "Cryptographically verified: 3",
+            "Distinct signature values: 2",
+            "True nonce reuse (same r, different s): 0",
+            "Duplicate encodings (same r and s): 1"
+          ],
+          "requires": "",
+          "reproduce_with": "python -m spa.cli analyze-key",
+          "references": [],
+          "confidence": "high",
+          "data": {
+            "distinct_r": 2,
+            "verified": 3
+          }
+        },
+        {
+          "category": "E",
+          "category_title": "Conclusively ruled out",
+          "title": "Lattice/HNP attack on the published signatures",
+          "summary": "Even granting a hypothetical nonce bias, a lattice attack on 160-bit q needs on the order of 60 signatures assuming 4 leaked bits each. This key has published 3. The shortfall is structural: the keyblock contains one certification and two subkey bindings, and no further signatures by this key exist in the public record to collect.",
+          "evidence": [
+            "A lattice/HNP attack against 160-bit q needs on the order of 60 signatures even assuming 4 leaked nonce bits per signature; 3 are available."
+          ],
+          "requires": "tens to hundreds of signatures from the same key",
+          "reproduce_with": "",
+          "references": [],
+          "confidence": "high",
+          "data": {}
+        },
+        {
+          "category": "E",
+          "category_title": "Conclusively ruled out",
+          "title": "CVE-2016-6313 exploitation against this key from public material",
+          "summary": "The predictor needs 580 bytes of raw consecutive generator output. An OpenPGP public key publishes none: p and q are the survivors of a primality search, g is derived from them, y hides x behind a discrete log, and signatures publish r = (g^k mod p) mod q rather than k. The shortfall is 580 bytes out of 580, and it is categorical rather than quantitative - more public signatures would not help, because no quantity of public signatures contains raw generator output.",
+          "evidence": [
+            "primary key p, q, g (DSA domain parameters): 0",
+            "primary key y (= g^x mod p): 0",
+            "private exponent x: 0",
+            "Elgamal subkey p, g, y: 0",
+            "signature r values (= (g^k mod p) mod q): 0",
+            "signature s values: 0",
+            "signature nonces k: 0",
+            "packet timestamps / preferences: 0",
+            "Total raw RNG bytes observable: 0"
+          ],
+          "requires": "580 consecutive bytes (4640 bits) of unprocessed RNG output, the 580 bytes must be consecutive and in emission order, from a single mix_pool invocation",
+          "reproduce_with": "",
+          "references": [
+            "CVE-2016-6313"
+          ],
+          "confidence": "high",
+          "data": {
+            "required": 580,
+            "observable": 0
+          }
+        },
+        {
+          "category": "E",
+          "category_title": "Conclusively ruled out",
+          "title": "Any transfer of GnuPG RNG findings to Satoshi's Bitcoin keys",
+          "summary": "Bitcoin signing is ECDSA over secp256k1 using OpenSSL's RNG. GnuPG's cipher/random.c is never executed by Bitcoin, so CVE-2016-6313 and every other GnuPG RNG defect is inapplicable to the wallet keys by construction. Separately, unspent outputs publish no signature at all, so the great majority of coins attributed to Satoshi contribute zero ECDSA signatures to any analysis.",
+          "evidence": [
+            "PGP key: DSA (FIPS 186) over a 1024-bit prime field",
+            "Bitcoin: ECDSA over secp256k1",
+            "CVE-2016-6313 is a defect in GnuPG's cipher/random.c mix_pool(). That code is never executed by Bitcoin, which links OpenSSL. No GnuPG RNG finding can propagate to a Bitcoin key."
+          ],
+          "requires": "",
+          "reproduce_with": "",
+          "references": [],
+          "confidence": "high",
+          "data": {}
+        }
+      ]
+    }
+  },
+  "counts": {
+    "A": 4,
+    "B": 3,
+    "C": 6,
+    "D": 2,
+    "E": 7
+  }
+}

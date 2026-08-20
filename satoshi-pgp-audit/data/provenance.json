@@ -1,0 +1,51 @@
+{
+  "$comment": "Every artifact this project reasons about is pinned here. Nothing in the analysis path is fetched unpinned at runtime; verify_provenance.py re-checks each digest before any module is allowed to consume the artifact.",
+  "generated_by": "satoshi-pgp-audit",
+  "artifacts": {
+    "satoshi_public_key": {
+      "path": "data/keys/satoshi_5EC948A1.asc",
+      "sha256": "68e8397a3689b19efa455cbd65ead365de11e4bac6c88fdd196a806ae89520d1",
+      "retrieved_from": "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x18C09E865EC948A1&options=mr",
+      "retrieved_utc": "2026-08-20T22:00:00Z",
+      "expected_fingerprint": "DE4EFCA3E1AB9E41CE96CECB18C09E865EC948A1",
+      "expected_keyid": "18C09E865EC948A1",
+      "expected_created_unix": 1225390759,
+      "expected_created_utc": "2008-10-30T18:19:19Z",
+      "note": "Keyserver copies accumulate unauthenticated third-party signature packets. The digest above pins THIS retrieval; the fingerprint is the trust anchor and is recomputed from the primary key packet by spa.openpgp.fingerprint. Only the fingerprint is authoritative - the surrounding packets are attacker-appendable by design of the SKS protocol."
+    },
+    "gnupg_1_4_7_source": {
+      "upstream_git": "https://github.com/gpg/gnupg.git",
+      "$comment_mirror": "Official GnuPG git mirror. The canonical tarball host gnupg.org was unreachable from the build environment used to author this project (egress policy), so the source is pinned by git object id instead - a strictly stronger binding than a tarball checksum, since the tag/commit/tree ids are content-addressed over the whole tree.",
+      "tag": "gnupg-1.4.7",
+      "tag_object_sha1": "a35b786e2a3227485c4cdb4de0d1589f4c4c97f8",
+      "commit_sha1": "7cb81bb3ef2769812678719d440aa844c0bb889a",
+      "tree_sha1": "c9cb62c8dcee5935c4ad86b190d171beec5035d0",
+      "commit_date": "2007-03-05T10:22:56+00:00",
+      "commit_author": "Werner Koch",
+      "declared_version": "1.4.7",
+      "version_source": "configure.ac: m4_define([my_version], [1.4.7])",
+      "upstream_tarball": {
+        "$comment": "Recorded for cross-checking on networks that can reach gnupg.org. NOT verified by this project - left null rather than guessed. tools/verify_tarball.sh fills and checks these when the host is reachable.",
+        "url": "https://gnupg.org/ftp/gcrypt/gnupg/gnupg-1.4.7.tar.bz2",
+        "sha256": null,
+        "verified": false
+      }
+    },
+    "gnupg_1_4_21_source": {
+      "$comment": "First release containing the CVE-2016-6313 fix. Used as the differential reference implementation.",
+      "upstream_git": "https://github.com/gpg/gnupg.git",
+      "tag": "gnupg-1.4.21"
+    }
+  },
+  "reference_key_facts": {
+    "$comment": "Facts asserted by the project brief, each marked with how this project verified it.",
+    "key_id": {"value": "5EC948A1", "verified": true, "how": "parsed from primary public-key packet"},
+    "fingerprint": {"value": "DE4E FCA3 E1AB 9E41 CE96 CECB 18C0 9E86 5EC9 48A1", "verified": true, "how": "SHA-1 over RFC4880 5.2.4 fingerprint preimage, recomputed locally"},
+    "created": {"value": "2008-10-30", "verified": true, "how": "creation timestamp field of primary key packet"},
+    "generator_gnupg_1_4_7_mingw32": {
+      "value": "GnuPG v1.4.7 (MingW32)",
+      "verified": false,
+      "how": "NOT verifiable from the key material. The 'Version:' armor header that carries this string is a property of the ASCII-armor envelope of a particular archived copy, not of the key packets, and it is neither signed nor covered by the fingerprint. This project treats the generator attribution as an UNAUTHENTICATED HISTORICAL CLAIM sourced from archived forum/mail copies, and reports every conclusion that depends on it as conditional. See docs/THREAT_MODEL.md."
+    }
+  }
+}
