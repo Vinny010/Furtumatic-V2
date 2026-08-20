@@ -20,7 +20,7 @@ The key is exactly what it appears to be: a structurally sound DSA-1024 key gene
 | **B** | Theoretically apply, require unavailable state/observations | 3 |
 | **C** | Anomalies visible in the public key/signatures | 6 |
 | **D** | Reproduced successfully with synthetic keys | 2 |
-| **E** | Conclusively ruled out | 7 |
+| **E** | Conclusively ruled out | 9 |
 
 ---
 
@@ -326,6 +326,36 @@ Bitcoin signing is ECDSA over secp256k1 using OpenSSL's RNG. GnuPG's cipher/rand
 - Bitcoin: ECDSA over secp256k1
 - CVE-2016-6313 is a defect in GnuPG's cipher/random.c mix_pool(). That code is never executed by Bitcoin, which links OpenSSL. No GnuPG RNG finding can propagate to a Bitcoin key.
 
+### ECDSA nonce reuse by Satoshi's only repeatedly-signing key
+
+Coins that were never spent publish no signature, so the dormant Patoshi coinbases have no nonce to attack at all. The block-9 coinbase key is the sole exception - spent, then reused as change down a five-transaction chain starting with the 2009-01-12 transfer to Hal Finney. Re-derived here from raw bytes: 5/5 transactions authenticate by txid, 5/5 signatures verify, and there are 5 distinct nonces across 5 signatures. No reuse, so the closed-form recovery that caused the real Android-2013 thefts does not apply.
+
+**Evidence:**
+
+- All 5 transactions authenticated locally: the raw bytes double-SHA-256 to the expected txids, so no trust in the data's source is required.
+- All 5 signatures verify against the key, confirming both the digest reconstruction and that this key produced them.
+- 5 signatures, 5 distinct nonces: no reuse. The one Satoshi-attributed key that ever signed more than once did so safely, so the closed-form nonce-reuse attack does not apply to it.
+
+**Reproduce:**
+
+```bash
+python -m spa.cli verify-spendchain
+```
+
+### Related (small-offset) private keys across the Patoshi corpus
+
+Early coinbases are pay-to-public-key, so they publish full public keys and allow a test that addresses alone would not: if any two private keys differed by a small offset, that shows up as P_j = P_i + delta*G. This is the failure class behind the Debian OpenSSL and Android SecureRandom losses. Scanning 21955 keys across offsets up to 2048 found 0 relations and 0 duplicate keys, with a planted control pair correctly detected.
+
+**Evidence:**
+
+- No duplicate keys and no related keys within delta <= 2048. This rules out sequential, incrementing and small-offset key generation across the corpus - a whole class of generator defect, excluded by measurement rather than assumption.
+
+**Reproduce:**
+
+```bash
+python -m spa.cli scan-related --input <p2pk.csv>
+```
+
 ---
 
 ## Provenance
@@ -368,6 +398,53 @@ Bitcoin signing is ECDSA over secp256k1 using OpenSSL's RNG. GnuPG's cipher/rand
       "$comment": "First release containing the CVE-2016-6313 fix. Used as the differential reference implementation.",
       "upstream_git": "https://github.com/gpg/gnupg.git",
       "tag": "gnupg-1.4.21"
+    },
+    "patoshi_p2pk_corpus": {
+      "$comment": "THIRD-PARTY DATA, treated as untrusted input. This project does not take the 'Patoshi' attribution on faith - the attribution is a historical claim originating with Sergio Demian Lerner's 2013 ExtraNonce analysis, not a cryptographic fact. What IS verified locally, by spa.analysis.relatedkeys, is that every entry is a genuine secp256k1 point: 21953/21953 on curve, 0 rejected, 0 duplicates. Conclusions are stated about 'this corpus', never about a named person.",
+      "source_repo": "https://github.com/bensig/patoshi-addresses",
+      "commit_sha1": "414637ce52aa4819926bf1934b2235ed182a0280",
+      "commit_date": "2025-07-15T16:48:22-07:00",
+      "file": "patoshi_pubkeys_COMPLETE.csv",
+      "sha256": "f649579e286085325a881bec1168e88bbb6f5d67e10b7ef8cb5c65e916a34a2e",
+      "records": 21953,
+      "block_height_range": [
+        3,
+        49973
+      ],
+      "script_type": "p2pk",
+      "credits": [
+        "Sergio Demian Lerner - discovered the Patoshi pattern (2013)",
+        "Jameson Lopp - curated the Patoshi block list"
+      ],
+      "locally_verified": {
+        "all_points_on_secp256k1": true,
+        "records_on_curve": 21953,
+        "records_rejected": 0,
+        "duplicate_public_keys": 0
+      },
+      "why_p2pk_matters": "Early coinbase outputs paid to a raw public key rather than to a hash of one. That means the FULL public key is on chain, which is what makes the related-key scan possible at all. Modern P2PKH outputs publish only HASH160(pubkey), so the same analysis cannot be run on them until the coins move."
+    },
+    "block9_spend_chain": {
+      "$comment": "Raw pre-segwit transaction bytes for the block-9 coinbase spend chain. SELF-AUTHENTICATING: a Bitcoin txid is the double-SHA-256 of the raw bytes, so the data proves its own integrity locally and the source needs no trust. Verified 5/5 before analysis.",
+      "path": "data/block9_spend_chain.json",
+      "source_repo": "https://github.com/satoshi-onchain/satoshi-onchain",
+      "source_file": "spend_chain.py",
+      "transactions": 5,
+      "block_heights": [
+        170,
+        181,
+        182,
+        182,
+        183
+      ],
+      "first_txid": "f4184fc596403b9d638783cf57adfe4c75c605f6356fbc91338530e9831e9e16",
+      "signing_pubkey_derived_from": "the chain's own change output, not from the source repository's assertion",
+      "locally_verified": {
+        "txids_authenticated": "5/5",
+        "signatures_verified": "5/5",
+        "distinct_nonces": 5,
+        "reused_nonce_pairs": 0
+      }
     }
   },
   "reference_key_facts": {

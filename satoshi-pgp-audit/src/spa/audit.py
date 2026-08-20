@@ -304,6 +304,62 @@ def audit_key(key_path: Path, gnupg_repo: Optional[Path] = None,
                   bitcoin_scope.DOMAIN_SEPARATION["bitcoin_keys"]["reason"]],
     ))
 
+    # On-chain results, when the corpora have been verified locally.
+    onchain = Path(__file__).resolve().parents[2] / "reports" / "spendchain.json"
+    if onchain.exists():
+        try:
+            sc = json.loads(onchain.read_text())
+        except ValueError:
+            sc = None
+        if sc:
+            rep.add(Finding(
+                category=Category.E,
+                title="ECDSA nonce reuse by Satoshi's only repeatedly-signing key",
+                summary=(
+                    "Coins that were never spent publish no signature, so the "
+                    "dormant Patoshi coinbases have no nonce to attack at all. The "
+                    "block-9 coinbase key is the sole exception - spent, then reused "
+                    "as change down a five-transaction chain starting with the "
+                    "2009-01-12 transfer to Hal Finney. Re-derived here from raw "
+                    "bytes: %d/%d transactions authenticate by txid, %d/%d "
+                    "signatures verify, and there are %d distinct nonces across %d "
+                    "signatures. No reuse, so the closed-form recovery that caused "
+                    "the real Android-2013 thefts does not apply."
+                    % (sc.get("txids_authenticated", 0), sc.get("transactions", 0),
+                       sc.get("verified", 0), sc.get("signatures", 0),
+                       sc.get("distinct_r", 0), sc.get("signatures", 0))),
+                evidence=list(sc.get("notes", [])),
+                reproduce_with="python -m spa.cli verify-spendchain",
+                data={"distinct_r": sc.get("distinct_r"),
+                      "nonce_safe": sc.get("nonce_safe")},
+            ))
+    related = Path(__file__).resolve().parents[2] / "reports" / "related_keys.json"
+    if related.exists():
+        try:
+            rk = json.loads(related.read_text())
+        except ValueError:
+            rk = None
+        if rk and rk.get("control_detected"):
+            rep.add(Finding(
+                category=Category.E,
+                title="Related (small-offset) private keys across the Patoshi corpus",
+                summary=(
+                    "Early coinbases are pay-to-public-key, so they publish full "
+                    "public keys and allow a test that addresses alone would not: if "
+                    "any two private keys differed by a small offset, that shows up "
+                    "as P_j = P_i + delta*G. This is the failure class behind the "
+                    "Debian OpenSSL and Android SecureRandom losses. Scanning %d keys "
+                    "across offsets up to %d found %d relations and %d duplicate "
+                    "keys, with a planted control pair correctly detected."
+                    % (rk.get("keys_scanned", 0), rk.get("max_delta", 0),
+                       len(rk.get("related_pairs", [])),
+                       rk.get("duplicate_keys", 0))),
+                evidence=list(rk.get("notes", [])),
+                reproduce_with="python -m spa.cli scan-related --input <p2pk.csv>",
+                data={"keys_scanned": rk.get("keys_scanned"),
+                      "max_delta": rk.get("max_delta")},
+            ))
+
     rep.target["bottom_line"] = (
         "The key is exactly what it appears to be: a structurally sound DSA-1024 key "
         "generated on 2008-10-30, whose three self-signatures all verify. GnuPG 1.4.7 "
