@@ -35,13 +35,50 @@
       "$comment": "First release containing the CVE-2016-6313 fix. Used as the differential reference implementation.",
       "upstream_git": "https://github.com/gpg/gnupg.git",
       "tag": "gnupg-1.4.21"
+    },
+    "patoshi_p2pk_corpus": {
+      "$comment": "THIRD-PARTY DATA, treated as untrusted input. This project does not take the 'Patoshi' attribution on faith - the attribution is a historical claim originating with Sergio Demian Lerner's 2013 ExtraNonce analysis, not a cryptographic fact. What IS verified locally, by spa.analysis.relatedkeys, is that every entry is a genuine secp256k1 point: 21953/21953 on curve, 0 rejected, 0 duplicates. Conclusions are stated about 'this corpus', never about a named person.",
+      "source_repo": "https://github.com/bensig/patoshi-addresses",
+      "commit_sha1": "414637ce52aa4819926bf1934b2235ed182a0280",
+      "commit_date": "2025-07-15T16:48:22-07:00",
+      "file": "patoshi_pubkeys_COMPLETE.csv",
+      "sha256": "f649579e286085325a881bec1168e88bbb6f5d67e10b7ef8cb5c65e916a34a2e",
+      "records": 21953,
+      "block_height_range": [
+        3,
+        49973
+      ],
+      "script_type": "p2pk",
+      "credits": [
+        "Sergio Demian Lerner - discovered the Patoshi pattern (2013)",
+        "Jameson Lopp - curated the Patoshi block list"
+      ],
+      "locally_verified": {
+        "all_points_on_secp256k1": true,
+        "records_on_curve": 21953,
+        "records_rejected": 0,
+        "duplicate_public_keys": 0
+      },
+      "why_p2pk_matters": "Early coinbase outputs paid to a raw public key rather than to a hash of one. That means the FULL public key is on chain, which is what makes the related-key scan possible at all. Modern P2PKH outputs publish only HASH160(pubkey), so the same analysis cannot be run on them until the coins move."
     }
   },
   "reference_key_facts": {
     "$comment": "Facts asserted by the project brief, each marked with how this project verified it.",
-    "key_id": {"value": "5EC948A1", "verified": true, "how": "parsed from primary public-key packet"},
-    "fingerprint": {"value": "DE4E FCA3 E1AB 9E41 CE96 CECB 18C0 9E86 5EC9 48A1", "verified": true, "how": "SHA-1 over RFC4880 5.2.4 fingerprint preimage, recomputed locally"},
-    "created": {"value": "2008-10-30", "verified": true, "how": "creation timestamp field of primary key packet"},
+    "key_id": {
+      "value": "5EC948A1",
+      "verified": true,
+      "how": "parsed from primary public-key packet"
+    },
+    "fingerprint": {
+      "value": "DE4E FCA3 E1AB 9E41 CE96 CECB 18C0 9E86 5EC9 48A1",
+      "verified": true,
+      "how": "SHA-1 over RFC4880 5.2.4 fingerprint preimage, recomputed locally"
+    },
+    "created": {
+      "value": "2008-10-30",
+      "verified": true,
+      "how": "creation timestamp field of primary key packet"
+    },
     "generator_gnupg_1_4_7_mingw32": {
       "value": "GnuPG v1.4.7 (MingW32)",
       "verified": false,

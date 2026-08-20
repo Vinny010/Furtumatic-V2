@@ -332,6 +332,77 @@ def cmd_verify_message(args) -> int:
     return 0 if res.valid else 1
 
 
+# --------------------------------------------------------------- scan-related
+def cmd_scan_related(args) -> int:
+    from .analysis.relatedkeys import load_p2pk_csv, scan, with_control
+    path = Path(args.input)
+    if not path.exists():
+        _p("No P2PK corpus at %s" % path)
+        _p("Expected a CSV with columns 'Block Height' and 'Address/Pubkey'.")
+        return 2
+    records = load_p2pk_csv(path)
+    _p("Related-key scan over a pay-to-public-key corpus")
+    _p("=" * 74)
+    _p("")
+    _p("Tests whether any two private keys differ by a small offset. If so,")
+    _p("P_j = P_i + delta*G, which is visible from public keys alone. This is the")
+    _p("failure class behind the Debian OpenSSL and Android SecureRandom losses.")
+    _p("")
+    _p("corpus            : %s" % path)
+    _p("keys loaded       : %d" % len(records))
+    _p("delta range       : 1 .. %d" % args.max_delta)
+    control_labels = None
+    if not args.no_control:
+        records, control_labels = with_control(records, delta=args.control_delta)
+        _p("positive control  : injected pair with delta=%d" % args.control_delta)
+    _p("")
+
+    def progress(d, total, hits, secs):
+        _p("  delta <= %-6d %6.1fs   relations found: %d" % (d, secs, hits))
+
+    f = scan(records, max_delta=args.max_delta, progress=progress,
+             control_labels=control_labels)
+    _p("")
+    _p("keys scanned      : %d" % f.keys_scanned)
+    _p("off-curve entries : %d" % len(f.off_curve))
+    _p("duplicate keys    : %d" % len(f.duplicate_keys))
+    _p("elapsed           : %.1fs" % f.elapsed_seconds)
+    _p("")
+    real_hits = f.related_pairs
+    if control_labels:
+        _p("POSITIVE CONTROL detected : %s"
+           % ("YES" if f.control_detected else "NO"))
+        if not f.control_detected:
+            _p("  The scan failed to find a PLANTED relation. Its negative result")
+            _p("  on real data is therefore meaningless. Investigate before trusting.")
+            for n in f.notes:
+                _p("note: %s" % n)
+            return 1
+    _p("")
+    _p("RELATED KEYS AMONG REAL CORPUS : %d" % len(real_hits))
+    for a, b, d in real_hits[:40]:
+        _p("   %s  <->  %s   delta=%d" % (a, b, d))
+    if len(real_hits) > 40:
+        _p("   ... and %d more" % (len(real_hits) - 40))
+    _p("")
+    for n in f.notes:
+        _p("note: %s" % n)
+    if args.json:
+        Path(args.json).parent.mkdir(parents=True, exist_ok=True)
+        Path(args.json).write_text(json.dumps({
+            "corpus": str(path),
+            "keys_scanned": f.keys_scanned,
+            "max_delta": f.max_delta,
+            "duplicate_keys": len(f.duplicate_keys),
+            "related_pairs": real_hits,
+            "control_detected": f.control_detected,
+            "elapsed_seconds": f.elapsed_seconds,
+            "notes": f.notes,
+        }, indent=2))
+        _p("wrote %s" % args.json)
+    return 0
+
+
 # --------------------------------------------------------------- patoshi
 def cmd_patoshi(args) -> int:
     from .analysis.patoshi import analyse, load_blocks, nonce_histogram
@@ -557,6 +628,16 @@ def main(argv=None) -> int:
     p.add_argument("--signature", required=True)
     p.add_argument("--address")
     p.set_defaults(func=cmd_verify_message)
+
+    p = sub.add_parser("scan-related",
+                       help="scan a P2PK corpus for related (small-offset) keys")
+    p.add_argument("--input", required=True, help="CSV of P2PK outputs")
+    p.add_argument("--max-delta", type=int, default=512)
+    p.add_argument("--control-delta", type=int, default=7)
+    p.add_argument("--no-control", action="store_true",
+                   help="skip the injected positive control (not recommended)")
+    p.add_argument("--json", help="write findings here")
+    p.set_defaults(func=cmd_scan_related)
 
     p = sub.add_parser("patoshi",
                        help="mining-fingerprint analysis over early block data")

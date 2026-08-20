@@ -148,6 +148,26 @@ The idea does describe a real class of failure - Debian's OpenSSL defect
 keys genuinely were enumerated. That was OpenSSL, not GnuPG, and 1.4.7 has no
 equivalent collapse. See `docs/RECONSTRUCTION.md`.
 
+## On-chain: the one test the data actually supports
+
+Satoshi-era coins are unspent, so they publish no signature - every nonce attack is
+dead on arrival. But early coinbases are `p2pk`, so they DO publish full public
+keys. That allows exactly one real test: are any two private keys related by a
+small offset (`P_j = P_i + delta*G`)? That is the failure class behind the Debian
+OpenSSL and Android SecureRandom losses, and it is rarely tested on historical
+corpora because it needs full public keys rather than addresses.
+
+Run over 21,953 `p2pk` coinbase outputs (blocks 3-49,973), with every entry first
+verified locally as a genuine curve point (21,953/21,953 on curve, 0 duplicates):
+
+| Measure | Result |
+|---|---|
+| Positive control (planted `delta=7`) | **detected** |
+| Related-key pairs, `delta <= 2048` | **0** |
+| Duplicate public keys | **0** |
+
+A whole class of generator defect, excluded by measurement. See `docs/ONCHAIN.md`.
+
 ## One honest caveat
 
 The attribution *"GnuPG v1.4.7 (MingW32)"* comes from an ASCII-armor `Version:`
@@ -171,7 +191,7 @@ src/spa/lab/       RIPEMD-160, the 1.4.7/1.4.21 pool models, CVE reproduction,
                    the C bridge, and the synthetic-key harness
 src/spa/report/    five-category findings engine
 docker/            pinned historical build + analysis image
-docs/              METHODOLOGY.md, THREAT_MODEL.md, RECONSTRUCTION.md
+docs/              METHODOLOGY.md, THREAT_MODEL.md, RECONSTRUCTION.md, ONCHAIN.md
 tests/             75 tests, including the differential against real GnuPG C
 ```
 
