@@ -242,6 +242,57 @@ def cmd_lab_rngstats(args) -> int:
     return 0
 
 
+# --------------------------------------------------------------- lab-reconstruct
+def cmd_lab_reconstruct(args) -> int:
+    from .lab.harvest import find_gpg
+    from .lab.reconstruct import run_experiment, search_space
+    bins = find_gpg()
+    gpg = args.gpg or bins.get("historical")
+    if not gpg:
+        _p("No GnuPG 1.4.7 binary found. Set SPA_GPG147 or pass --gpg.")
+        return 2
+    _p("=" * 74)
+    _p("Can a key be reconstructed from its username and creation time?")
+    _p("=" * 74)
+    _p("")
+    _p("Hypothesis: the User ID is a missing input to key generation, so trying")
+    _p("candidate usernames at the right timestamp reproduces the original key.")
+    _p("")
+    _p("Test: generate many keys with the historical binary, holding the User ID")
+    _p("fixed. If the hypothesis held, they would collide.")
+    _p("")
+    res = run_experiment(gpg, uid_name=args.name, uid_email=args.email,
+                         count=args.count)
+    _p("User ID used for every key : %s" % res.uid)
+    _p("keys generated             : %d" % res.keys_generated)
+    _p("distinct fingerprints      : %d" % res.distinct_fingerprints)
+    _p("distinct public values y   : %d" % res.distinct_y)
+    _p("distinct primes p          : %d" % res.distinct_p)
+    _p("distinct primes q          : %d" % res.distinct_q)
+    _p("")
+    if res.timestamp_collisions:
+        _p("Keys that ALSO shared a creation second:")
+        for ts, n, distinct in res.timestamp_collisions:
+            _p("  unix %d : %d keys -> %d distinct keys" % (ts, n, distinct))
+    _p("")
+    _p("username determines the key          : %s" % res.uid_determines_key)
+    _p("username + timestamp determine key   : %s" % res.uid_and_time_determine_key)
+    for n in res.notes:
+        _p("  note: %s" % n)
+    _p("")
+    sp = search_space()
+    _p("Even granting the hypothesis, the remaining search is:")
+    _p("  private key space : 2^%d = %s candidates"
+       % (sp["private_key_bits"], sp["candidates_scientific"]))
+    _p("  at 1e12 keys/sec  : %s years" % sp["years_at_that_rate"])
+    _p("  %s" % sp["note"])
+    _p("")
+    _p("CONCLUSION: the User ID is a label attached AFTER generation, and the")
+    _p("timestamp is recorded rather than consumed. Neither reaches the random")
+    _p("number generator, so no list of candidate usernames can reproduce the key.")
+    return 0
+
+
 # --------------------------------------------------------------- report
 def cmd_report(args) -> int:
     from .audit import audit_key
@@ -279,6 +330,57 @@ def cmd_verify_message(args) -> int:
     for n in res.notes:
         _p("  note: %s" % n)
     return 0 if res.valid else 1
+
+
+# --------------------------------------------------------------- scan-ecdsa
+def cmd_scan_ecdsa(args) -> int:
+    """Scan a corpus of ECDSA signatures for reused nonces.
+
+    Input is a JSON list of objects with r, s and optionally z (the signed digest,
+    hex or int) and label. Accepts DER-encoded signatures via a "der" field.
+
+    Deliberately offline: this tool does not fetch from any blockchain API. Point
+    it at a dump produced by your own node or explorer export, so the analysis is
+    reproducible and the data provenance is yours.
+    """
+    from .analysis.bitcoin_scope import (find_ecdsa_nonce_reuse,
+                                         parse_der_signature, recover_ecdsa_key)
+    raw = json.loads(Path(args.input).read_text())
+    sigs = []
+    for i, item in enumerate(raw):
+        if "der" in item:
+            r, s_ = parse_der_signature(bytes.fromhex(item["der"]))
+        else:
+            r, s_ = int(str(item["r"]), 0), int(str(item["s"]), 0)
+        entry = {"r": r, "s": s_, "label": item.get("label", "sig-%d" % i)}
+        if "z" in item:
+            entry["z"] = int(str(item["z"]), 0) if not isinstance(item["z"], str) \
+                else int(item["z"], 16) if len(item["z"]) == 64 else int(item["z"], 0)
+        sigs.append(entry)
+
+    f = find_ecdsa_nonce_reuse(sigs)
+    _p("ECDSA nonce-reuse scan")
+    _p("  signatures supplied : %d" % f.signature_count)
+    _p("  distinct r values   : %d" % f.distinct_r)
+    _p("  reused-nonce pairs  : %d" % len(f.repeated_r))
+    for n in f.notes:
+        _p("  note: %s" % n)
+    recovered = 0
+    for a, b, r in f.repeated_r:
+        _p("  REUSED r=%x between %s and %s" % (r, a, b))
+        sa = next(x for x in sigs if x["label"] == a)
+        sb = next(x for x in sigs if x["label"] == b)
+        if "z" in sa and "z" in sb:
+            key = recover_ecdsa_key(r, sa["s"], sa["z"], sb["s"], sb["z"])
+            if key is not None:
+                recovered += 1
+                _p("      private key recoverable from these two signatures")
+    if f.repeated_r and not recovered:
+        _p("  (supply the signed digests as 'z' to demonstrate recoverability)")
+    _p("")
+    _p("Reminder: an UNSPENT output publishes no signature at all, so addresses "
+       "that never moved coins contribute nothing to this analysis.")
+    return 0
 
 
 # --------------------------------------------------------------- verify-provenance
@@ -343,6 +445,14 @@ def main(argv=None) -> int:
     p.add_argument("--word-size", type=int, default=4, choices=(4, 8))
     p.set_defaults(func=cmd_lab_rngstats)
 
+    p = sub.add_parser("lab-reconstruct",
+                       help="test whether username+timestamp can reproduce a key")
+    p.add_argument("--gpg", help="path to the historical gpg binary")
+    p.add_argument("--name", default="Satoshi Nakamoto")
+    p.add_argument("--email", default="satoshin@gmx.com")
+    p.add_argument("--count", type=int, default=25)
+    p.set_defaults(func=cmd_lab_reconstruct)
+
     p = sub.add_parser("report", help="produce the five-category audit report")
     p.add_argument("--key", default=str(DEFAULT_KEY))
     p.add_argument("--gnupg-src", help="path to a GnuPG git checkout")
@@ -358,6 +468,12 @@ def main(argv=None) -> int:
     p.add_argument("--signature", required=True)
     p.add_argument("--address")
     p.set_defaults(func=cmd_verify_message)
+
+    p = sub.add_parser("scan-ecdsa",
+                       help="scan a JSON corpus of ECDSA signatures for nonce reuse")
+    p.add_argument("--input", required=True,
+                   help="JSON list of {r,s[,z,label]} or {der[,z,label]}")
+    p.set_defaults(func=cmd_scan_ecdsa)
 
     p = sub.add_parser("verify-provenance", help="re-check pinned artifact digests")
     p.set_defaults(func=cmd_verify_provenance)

@@ -135,6 +135,19 @@ the explicit list of what *would* change the conclusion.
   `spa.analysis.bitcoin_scope` enforces that boundary and provides a signed-message
   verifier for material you supply.
 
+## Can the key be rebuilt from a username and a timestamp?
+
+No - and not for want of compute. The User ID is a *label attached after*
+generation, and the creation timestamp is *recorded, not consumed*; neither reaches
+the RNG. Generating 26 keys with the genuine 1.4.7 binary while holding the User ID
+fixed at `Satoshi Nakamoto <satoshin@gmx.com>` produced 26 entirely different keys,
+including five groups that shared a creation second and still collided zero times.
+
+The idea does describe a real class of failure - Debian's OpenSSL defect
+(CVE-2008-0166) reduced seeding to the process ID, 32,768 possibilities, and those
+keys genuinely were enumerated. That was OpenSSL, not GnuPG, and 1.4.7 has no
+equivalent collapse. See `docs/RECONSTRUCTION.md`.
+
 ## One honest caveat
 
 The attribution *"GnuPG v1.4.7 (MingW32)"* comes from an ASCII-armor `Version:`
@@ -158,7 +171,7 @@ src/spa/lab/       RIPEMD-160, the 1.4.7/1.4.21 pool models, CVE reproduction,
                    the C bridge, and the synthetic-key harness
 src/spa/report/    five-category findings engine
 docker/            pinned historical build + analysis image
-docs/              METHODOLOGY.md, THREAT_MODEL.md
+docs/              METHODOLOGY.md, THREAT_MODEL.md, RECONSTRUCTION.md
 tests/             75 tests, including the differential against real GnuPG C
 ```
 
