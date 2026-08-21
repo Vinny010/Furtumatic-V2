@@ -45,3 +45,30 @@ def test_clean_key_note_disclaims_identity():
     f = check_claim(KeyClaim(label="x", claimed_created_year=2008, pubkey_algo=17))
     assert any("necessary, NOT sufficient" in n for n in f.notes)
     assert any("identity" in n.lower() for n in f.notes)
+
+
+def test_keyring_check_over_transcribed_vertisan_ring():
+    """The three keys whose algorithm was actually observed are all provably
+    backdated; the rest are honestly UNVERIFIED, never falsely flagged."""
+    import json
+    from pathlib import Path
+    from spa.analysis.anachronism import check_keyring
+    path = Path(__file__).resolve().parents[1] / "data" / "vertisan_keyring.json"
+    entries = json.loads(path.read_text())["entries"]
+    verdicts = check_keyring(entries)
+    backdated = [v for v in verdicts if v.verdict == "BACKDATED"]
+    unverified = [v for v in verdicts if v.verdict == "UNVERIFIED"]
+    # EdDSA primary, ECDH subkey, EdDSA "BitCoin Email" - all impossible in 2008.
+    assert len(backdated) == 3
+    assert {v.key_id for v in backdated} == {
+        "7EEDA8009DFEF627", "2D49A7A3753FE656", "4444921F9B0D536B"}
+    # Entries with no observed algorithm must not be flagged.
+    assert len(unverified) == 5
+    assert all(not v.algo_known for v in unverified)
+
+
+def test_keyring_never_flags_unknown_algorithm():
+    from spa.analysis.anachronism import check_keyring
+    v = check_keyring([{"label": "x", "claimed_created_year": 2008,
+                        "pubkey_algo": None}])
+    assert v[0].verdict == "UNVERIFIED"

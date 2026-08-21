@@ -332,6 +332,42 @@ def cmd_verify_message(args) -> int:
     return 0 if res.valid else 1
 
 
+# --------------------------------------------------------------- check-keyring
+def cmd_check_keyring(args) -> int:
+    from .analysis.anachronism import check_keyring
+    blob = json.loads(Path(args.input).read_text())
+    entries = blob.get("entries", blob if isinstance(blob, list) else [])
+    _p("Keyring anachronism check")
+    _p("=" * 74)
+    if blob.get("source"):
+        _p("source : %s" % blob["source"])
+    if blob.get("$comment"):
+        _p("note   : transcribed from images; untrusted, algorithms recorded only")
+        _p("         where actually visible.")
+    _p("")
+    verdicts = check_keyring(entries)
+    backdated = [v for v in verdicts if v.verdict == "BACKDATED"]
+    for v in verdicts:
+        mark = {"BACKDATED": "BACKDATED ", "CONSISTENT": "consistent",
+                "UNVERIFIED": "unverified"}[v.verdict]
+        _p("[%s] %-34s claimed %s  %s"
+           % (mark, v.label[:34], v.claimed_year, v.key_id))
+        _p("             %s" % v.detail)
+    _p("")
+    _p("summary: %d backdated (provably impossible), %d consistent, %d unverified"
+       % (len(backdated),
+          sum(1 for v in verdicts if v.verdict == "CONSISTENT"),
+          sum(1 for v in verdicts if v.verdict == "UNVERIFIED")))
+    _p("")
+    if backdated:
+        _p("A BACKDATED verdict means the key's own algorithm did not exist on its")
+        _p("claimed creation date - a hard contradiction, not an inference from the")
+        _p("name. UNVERIFIED means the algorithm was not observed, so backdating can")
+        _p("be neither proven nor ruled out. CONSISTENT confirms nothing about the")
+        _p("date or identity - only that no anachronism is present.")
+    return 0
+
+
 # --------------------------------------------------------------- scan-pgp-nonces
 def cmd_scan_pgp_nonces(args) -> int:
     import glob
@@ -801,6 +837,11 @@ def main(argv=None) -> int:
     p.add_argument("--signature", required=True)
     p.add_argument("--address")
     p.set_defaults(func=cmd_verify_message)
+
+    p = sub.add_parser("check-keyring",
+                       help="run the anachronism check over a transcribed keyring")
+    p.add_argument("--input", default=str(ROOT / "data" / "vertisan_keyring.json"))
+    p.set_defaults(func=cmd_check_keyring)
 
     p = sub.add_parser("scan-pgp-nonces",
                        help="scan a PGP key corpus for reused DSA/ECDSA nonces")

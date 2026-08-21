@@ -124,3 +124,48 @@ def check_claim(claim: KeyClaim) -> AnachronismFindings:
             "the algorithms used. That is necessary, NOT sufficient - it does not "
             "confirm the date, and it says nothing about identity.")
     return f
+
+
+# ---- keyring-level checking ---------------------------------------------------
+@dataclass
+class KeyringVerdict:
+    label: str
+    claimed_year: int
+    algo_known: bool
+    verdict: str        # 'BACKDATED' | 'CONSISTENT' | 'UNVERIFIED'
+    findings: Optional[AnachronismFindings] = None
+    key_id: str = ""
+    detail: str = ""
+
+
+def check_keyring(entries: List[dict]) -> List[KeyringVerdict]:
+    """Vet a whole transcribed keyring.
+
+    Entries without an observed algorithm are reported UNVERIFIED - never flagged -
+    because backdating cannot be proven from a name and date alone. Only an
+    algorithm/date contradiction yields BACKDATED.
+    """
+    out: List[KeyringVerdict] = []
+    for e in entries:
+        year = e.get("claimed_created_year")
+        algo = e.get("pubkey_algo")
+        kid = e.get("key_id") or e.get("key_id_partial") or ""
+        if algo is None or year is None:
+            out.append(KeyringVerdict(
+                label=e.get("label", "?"), claimed_year=year or 0,
+                algo_known=False, verdict="UNVERIFIED", key_id=kid,
+                detail="algorithm not observed; backdating cannot be proven or "
+                       "ruled out from the available data"))
+            continue
+        claim = KeyClaim(label=e.get("label", "?"), claimed_created_year=year,
+                         pubkey_algo=algo, hash_algos=e.get("hash_algos", []),
+                         fingerprint=e.get("fingerprint"), uid=e.get("uid"))
+        f = check_claim(claim)
+        verdict = "BACKDATED" if f.backdated else "CONSISTENT"
+        detail = (max(f.anachronisms, key=lambda a: a.years_early).detail
+                  if f.backdated else "algorithm consistent with claimed date "
+                  "(does not confirm the date or identity)")
+        out.append(KeyringVerdict(
+            label=claim.label, claimed_year=year, algo_known=True,
+            verdict=verdict, findings=f, key_id=kid, detail=detail))
+    return out
