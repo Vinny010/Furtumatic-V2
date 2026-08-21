@@ -194,6 +194,29 @@ control (must stay clean); a failed control voids the run.
 Run across the 20 DSA issuers whose signatures appear on Satoshi's own keyblock: 41
 signatures, one known duplicate encoding, **zero reused nonces**.
 
+## Were the keys deterministically chained (each unlocks the next)?
+
+A recurring theory: Satoshi did not store 22,000 keys but derived each from the
+previous, so only the first had to be remembered. If true, the rule
+`d_{n+1} = f(key_n)` leaves a signature in the PUBLIC keys and is detectable with no
+private data. `spa.analysis.chainhypothesis` tests the literal constructions:
+
+```bash
+python -m spa.cli test-chain --input <p2pk.csv>
+```
+
+- hash chains: `next_priv = SHA256(prev_pub)` in several encodings, and `HASH256`
+- x-as-next-key: `next_priv = prev_pub.x mod N`
+- multiplicative: `next_pub = c * prev_pub` for small `c`
+- (additive `next_priv = prev_priv + c` is the related-key scan above: 0 hits)
+
+A rule counts only if it holds for EVERY consecutive pair, so a few hundred ordered
+pairs settle it. Result on the Patoshi keys (ordered by height): **13 rules, 0
+hold**, with a planted hash-chain control correctly detected. Combined with the
+additive scan, the common "each wallet unlocks the next" schemes are ruled out -
+consistent with Bitcoin 0.1 drawing each key independently from OpenSSL's RNG and
+storing them all in wallet.dat (HD/deterministic wallets did not exist until 2012).
+
 ## Relationship to the PGP side of this project
 
 None, cryptographically - and that separation is enforced in code

@@ -332,6 +332,57 @@ def cmd_verify_message(args) -> int:
     return 0 if res.valid else 1
 
 
+# --------------------------------------------------------------- test-chain
+def cmd_test_chain(args) -> int:
+    import csv
+    from .analysis import bitcoin_scope as bs
+    from .analysis.chainhypothesis import make_control_chain, test_chain
+    _p("Deterministic key-chain hypothesis test")
+    _p("=" * 74)
+    _p("")
+    _p("Tests whether each key was derived from the previous one (hash chain,")
+    _p("x-as-next-key, or multiplicative) - the 'each wallet unlocks the next'")
+    _p("idea. A rule must hold for EVERY consecutive pair to be a real chain.")
+    _p("")
+    if not args.no_control:
+        ctrl = make_control_chain(length=40)
+        cf = test_chain(ctrl, sample=39)
+        hit = [r for r in cf.results if r.holds]
+        _p("positive control (planted hash chain): %s"
+           % ("DETECTED - " + hit[0].name if hit else "FAILED"))
+        if not hit:
+            _p("  Control failed; the tester is broken and results below are void.")
+            return 1
+        _p("")
+    path = Path(args.input)
+    if not path.exists():
+        _p("No key CSV at %s (expected 'Block Height','Output Index','Address/Pubkey')"
+           % path)
+        return 2
+    rows = list(csv.DictReader(open(path)))
+    try:
+        rows.sort(key=lambda r: (int(r["Block Height"]), int(r.get("Output Index", 0))))
+    except Exception:
+        pass
+    pts = []
+    for r in rows:
+        h = (r.get("Address/Pubkey") or "").strip()
+        if h.startswith("04") and len(h) == 130:
+            pts.append((int(h[2:66], 16), int(h[66:], 16)))
+    _p("ordered public keys : %d" % len(pts))
+    f = test_chain(pts, sample=args.sample)
+    _p("consecutive pairs sampled : %d" % f.pairs_sampled)
+    _p("")
+    for r in f.results:
+        _p("  [%s] %-42s  %d/%d"
+           % ("HOLDS" if r.holds else "no  ", r.name, r.pairs_matched, f.pairs_sampled))
+    _p("")
+    _p("ANY CHAIN HOLDS: %s" % f.any_chain_holds)
+    for n in f.notes:
+        _p("note: %s" % n)
+    return 0
+
+
 # --------------------------------------------------------------- check-keyring
 def cmd_check_keyring(args) -> int:
     from .analysis.anachronism import check_keyring
@@ -837,6 +888,13 @@ def main(argv=None) -> int:
     p.add_argument("--signature", required=True)
     p.add_argument("--address")
     p.set_defaults(func=cmd_verify_message)
+
+    p = sub.add_parser("test-chain",
+                       help="test whether ordered keys were deterministically chained")
+    p.add_argument("--input", required=True, help="CSV with Block Height + Address/Pubkey")
+    p.add_argument("--sample", type=int, default=200)
+    p.add_argument("--no-control", action="store_true")
+    p.set_defaults(func=cmd_test_chain)
 
     p = sub.add_parser("check-keyring",
                        help="run the anachronism check over a transcribed keyring")
