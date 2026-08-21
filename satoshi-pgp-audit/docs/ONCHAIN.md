@@ -167,6 +167,33 @@ It establishes two things and honestly bounds a third:
    blind. So the Patoshi negative rules out the sequential class, not the hashed
    one. A test documents this blind spot rather than hiding it.
 
+## Scanning the whole PGP network for reused nonces
+
+The block-9 nonce check above is one key. The same test generalises: a key that
+signs two messages with the same nonce leaks its private key from public data, so
+scanning a whole keyserver corpus for that flaw is a standard disclosure technique
+(cf. Heninger et al., "Mining Your Ps and Qs", 2012). `spa.analysis.pgpscan` does
+this at corpus scale.
+
+```bash
+python -m spa.cli scan-pgp-nonces --input 'keys/*.asc'   # or a keyserver dump
+```
+
+Detection needs only (r, s): one issuer emitting two signatures that share r but
+differ in s reused a nonce, full stop. The scan groups every signature by issuer
+key id and flags such collisions - linear in the number of signatures, so "the
+entire network" is a data-transfer problem (an SKS dump is tens of GB) rather than
+an algorithmic one.
+
+An ethical boundary is built in, not just documented: the scanner FLAGS vulnerable
+third-party key ids for disclosure and revocation, and computes the actual private
+key only for synthetic keys or ones the operator marks `--owned`. Every run carries
+a planted-reuse positive control (must detect and recover) and a no-reuse negative
+control (must stay clean); a failed control voids the run.
+
+Run across the 20 DSA issuers whose signatures appear on Satoshi's own keyblock: 41
+signatures, one known duplicate encoding, **zero reused nonces**.
+
 ## Relationship to the PGP side of this project
 
 None, cryptographically - and that separation is enforced in code

@@ -332,6 +332,75 @@ def cmd_verify_message(args) -> int:
     return 0 if res.valid else 1
 
 
+# --------------------------------------------------------------- scan-pgp-nonces
+def cmd_scan_pgp_nonces(args) -> int:
+    import glob
+    from .analysis.pgpscan import (make_synthetic_control, scan_armored_texts,
+                                   scan_records)
+    _p("PGP DSA/ECDSA nonce-reuse scan")
+    _p("=" * 74)
+    _p("")
+    _p("Flags any key that signed two messages with the same nonce (same r,")
+    _p("differing s) - which leaks its private key from public data. This is a")
+    _p("disclosure/revocation tool: it flags vulnerable key ids; it recovers a")
+    _p("private key only for synthetic keys or ones you mark as your own.")
+    _p("")
+
+    if not args.no_control:
+        recs, par, keyid, true_x = make_synthetic_control(reuse=True)
+        cf = scan_records(recs, owned_keyids={keyid},
+                          params_by_keyid={keyid: par})
+        ok = bool(cf.vulnerable_keys) and \
+            cf.vulnerable_keys[0].recovered_private_key == true_x
+        _p("positive control (planted reuse) : %s"
+           % ("DETECTED + recovered" if ok else "FAILED"))
+        if not ok:
+            _p("  Control failed - the scanner is broken; results below are void.")
+            return 1
+        recs2, par2, keyid2, _x2 = make_synthetic_control(reuse=False)
+        nf = scan_records(recs2)
+        _p("negative control (no reuse)      : %s"
+           % ("clean" if nf.clean else "FALSE POSITIVE"))
+        _p("")
+
+    inputs = []
+    for pattern in (args.input or []):
+        for path in glob.glob(pattern):
+            try:
+                inputs.append((path, Path(path).read_text(errors="replace")))
+            except Exception as exc:
+                _p("  skip %s: %s" % (path, exc))
+    if not inputs:
+        _p("No key files supplied (--input). Ran controls only.")
+        _p("")
+        _p("To scan real keys, pass armored key files or a keyserver dump:")
+        _p("  python -m spa.cli scan-pgp-nonces --input 'keys/*.asc'")
+        _p("  python -m spa.cli scan-pgp-nonces --input dump.asc")
+        return 0
+
+    owned = set(args.owned or [])
+    f = scan_armored_texts(inputs, owned_keyids=owned)
+    _p("keys scanned              : %d" % f.keys_scanned)
+    _p("signatures scanned        : %d" % f.signatures_scanned)
+    _p("issuers seen              : %d" % f.issuers_seen)
+    _p("duplicate signatures      : %d" % f.duplicate_signatures)
+    _p("vulnerable keys           : %d" % len(f.vulnerable_keys))
+    _p("")
+    for vk in f.vulnerable_keys:
+        algo = {17: "DSA", 19: "ECDSA"}.get(vk.pubkey_algo, "algo-%d" % vk.pubkey_algo)
+        _p("  VULNERABLE key %s (%s): nonce reused across %d signatures"
+           % (vk.issuer_keyid, algo, vk.signature_count))
+        if vk.recovered_private_key is not None:
+            _p("    private key recovered (owned key) - revoke and rotate now")
+        else:
+            _p("    private key is recoverable from public data - disclose to the "
+               "key owner so they can revoke")
+    _p("")
+    for n in f.notes:
+        _p("note: %s" % n)
+    return 0
+
+
 # --------------------------------------------------------------- weak-entropy
 def cmd_weak_entropy(args) -> int:
     from .analysis.weakentropy import (demonstrate_recovery,
@@ -732,6 +801,15 @@ def main(argv=None) -> int:
     p.add_argument("--signature", required=True)
     p.add_argument("--address")
     p.set_defaults(func=cmd_verify_message)
+
+    p = sub.add_parser("scan-pgp-nonces",
+                       help="scan a PGP key corpus for reused DSA/ECDSA nonces")
+    p.add_argument("--input", action="append",
+                   help="armored key file(s) or a keyserver dump; globs allowed")
+    p.add_argument("--owned", action="append",
+                   help="key id you own, enabling private-key recovery for it")
+    p.add_argument("--no-control", action="store_true")
+    p.set_defaults(func=cmd_scan_pgp_nonces)
 
     p = sub.add_parser("weak-entropy",
                        help="reproduce the keyspace-collapse failure class (synthetic)")
