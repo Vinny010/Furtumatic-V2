@@ -488,6 +488,41 @@ def cmd_scan_pgp_nonces(args) -> int:
     return 0
 
 
+# --------------------------------------------------------------- keyspace-map
+def cmd_keyspace_map(args) -> int:
+    from .lab.keyspace_map import era_is_irrelevant_for_healthy, profile_models
+    _p("Keyspace distribution map (synthetic)")
+    _p("=" * 74)
+    _p("")
+    _p("Where do keys land under different entropy environments? A correctly-seeded")
+    _p("CSPRNG hashes (whitens) its entropy, so its output is uniform over the whole")
+    _p("keyspace regardless of the machine or year. 'Old vs new' is not a real axis;")
+    _p("only 'well-seeded vs broken' is.")
+    _p("")
+    profs = profile_models(count=args.count, weak_bits=args.weak_bits,
+                           band_bits=args.band_bits)
+    _p("%-32s %8s %9s %8s %10s" % ("model", "distinct", "collisn", "buckets", "bottom1/256"))
+    for name, d in profs.items():
+        _p("%-32s %8d %9d %6d/256 %9.3f%%"
+           % (name[:32], d.distinct, d.collisions, d.buckets_occupied,
+              100 * d.fraction_in_bottom_256th))
+    _p("")
+    for name, d in profs.items():
+        _p("%s:" % name)
+        for n in d.notes:
+            _p("  %s" % n)
+    _p("")
+    same = era_is_irrelevant_for_healthy()
+    _p("Two independent healthy generators indistinguishable (era is not an axis): %s"
+       % same)
+    _p("")
+    _p("Takeaway: a well-seeded 2008 machine and a 2026 machine both fill the whole")
+    _p("keyspace uniformly. Structure appears ONLY when seeding is broken - as")
+    _p("collisions (weak+whitened) or a magnitude band (raw counter/time). Satoshi's")
+    _p("keys show neither (see scan-related / test-chain).")
+    return 0
+
+
 # --------------------------------------------------------------- weak-entropy
 def cmd_weak_entropy(args) -> int:
     from .analysis.weakentropy import (demonstrate_recovery,
@@ -909,6 +944,13 @@ def main(argv=None) -> int:
                    help="key id you own, enabling private-key recovery for it")
     p.add_argument("--no-control", action="store_true")
     p.set_defaults(func=cmd_scan_pgp_nonces)
+
+    p = sub.add_parser("keyspace-map",
+                       help="map where keys land under different entropy models")
+    p.add_argument("--count", type=int, default=50000)
+    p.add_argument("--weak-bits", type=int, default=16)
+    p.add_argument("--band-bits", type=int, default=40)
+    p.set_defaults(func=cmd_keyspace_map)
 
     p = sub.add_parser("weak-entropy",
                        help="reproduce the keyspace-collapse failure class (synthetic)")
