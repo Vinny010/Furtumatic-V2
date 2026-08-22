@@ -488,6 +488,50 @@ def cmd_scan_pgp_nonces(args) -> int:
     return 0
 
 
+# --------------------------------------------------------------- explain-derivation
+def cmd_explain_derivation(args) -> int:
+    import hashlib
+    from .analysis import bitcoin_scope as bs
+    d = int(args.privkey, 0)
+    if not (0 < d < bs.N):
+        _p("private key out of range")
+        return 2
+    _p("Private key -> Bitcoin address: every deterministic step")
+    _p("=" * 74)
+    _p("")
+    _p("STEP 0  private key d (the ONLY random input; everything after is fixed rule)")
+    _p("        %064x" % d)
+    P = bs.point_mul(d)
+    _p("STEP 1  P = d x G  (secp256k1 scalar multiply: double-and-add) -- ONE-WAY #1")
+    _p("        x %064x" % P[0])
+    _p("        y %064x" % P[1])
+    ser = b"\x04" + P[0].to_bytes(32, "big") + P[1].to_bytes(32, "big")
+    _p("STEP 2  serialize  0x04 || x || y  (65 bytes)")
+    _p("        %s" % ser.hex())
+    s = hashlib.sha256(ser).digest()
+    _p("STEP 3  SHA-256(pubkey)  -- ONE-WAY #2")
+    _p("        %s" % s.hex())
+    r = bs.hash160(ser) if hasattr(bs, "hash160") else hashlib.new("ripemd160", s).digest()
+    _p("STEP 4  RIPEMD-160(sha)  = HASH160  -- ONE-WAY #3")
+    _p("        %s" % r.hex())
+    payload = bytes([args.version]) + r
+    _p("STEP 5  version(0x%02x) || HASH160" % args.version)
+    _p("        %s" % payload.hex())
+    chk = hashlib.sha256(hashlib.sha256(payload).digest()).digest()[:4]
+    _p("STEP 6  checksum = SHA-256(SHA-256(payload))[:4]")
+    _p("        %s" % chk.hex())
+    _p("STEP 7  Base58Check encode")
+    _p("        %s" % bs.b58check(payload))
+    _p("")
+    _p("Each arrow is a fixed, public rule - fully deterministic FORWARD.")
+    _p("Backward it hits three independent one-way walls:")
+    _p("  #1 discrete log  (P -> d)   ~2^128 via Pollard rho")
+    _p("  #2 SHA-256 preimage         ~2^256")
+    _p("  #3 RIPEMD-160 preimage      ~2^160")
+    _p("A preset rule can still be one-way: mixing is deterministic, un-mixing is not.")
+    return 0
+
+
 # --------------------------------------------------------------- keyspace-map
 def cmd_keyspace_map(args) -> int:
     from .lab.keyspace_map import era_is_irrelevant_for_healthy, profile_models
@@ -944,6 +988,12 @@ def main(argv=None) -> int:
                    help="key id you own, enabling private-key recovery for it")
     p.add_argument("--no-control", action="store_true")
     p.set_defaults(func=cmd_scan_pgp_nonces)
+
+    p = sub.add_parser("explain-derivation",
+                       help="print every deterministic step from private key to address")
+    p.add_argument("--privkey", default="0x1", help="private key (hex, e.g. 0x1)")
+    p.add_argument("--version", type=int, default=0, help="address version byte")
+    p.set_defaults(func=cmd_explain_derivation)
 
     p = sub.add_parser("keyspace-map",
                        help="map where keys land under different entropy models")
