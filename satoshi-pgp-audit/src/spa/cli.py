@@ -488,6 +488,56 @@ def cmd_scan_pgp_nonces(args) -> int:
     return 0
 
 
+# --------------------------------------------------------------- kangaroo
+def cmd_kangaroo(args) -> int:
+    import time
+    from .analysis import bitcoin_scope as bs
+    from .lab.kangaroo import demo, solve_interval
+    _p("Pollard Kangaroo - interval ECDLP solver (Bitcoin Puzzle)")
+    _p("=" * 74)
+    _p("Needs the EXPOSED public key; solves x in [2^(bits-1), 2^bits).")
+    _p("Expected work ~ 2*sqrt(interval). No twist beats that bound; speed is")
+    _p("engineering (distinguished points, jump table, batched ops).")
+    _p("")
+    if args.pubkey:
+        pub = bs.parse_uncompressed_pubkey(args.pubkey)
+        if pub is None:
+            _p("could not parse --pubkey (need 04||x||y, 130 hex chars)")
+            return 2
+        a = 1 << (args.bits - 1)
+        b = (1 << args.bits) - 1
+        _p("target pubkey : %s..." % args.pubkey[:24])
+        _p("range         : [2^%d, 2^%d)" % (args.bits - 1, args.bits))
+        _p("expected ops  : ~2^%.1f" % (args.bits / 2 + 1))
+        t = time.time()
+        r = solve_interval(pub, a, b, max_ops=args.max_ops)
+        _p("")
+        if r.solved:
+            _p("SOLVED  private key = %064x" % r.private_key)
+        else:
+            _p("not solved in %d ops (%s)" % (r.operations, "; ".join(r.notes)))
+            _p("this range likely needs a distributed/GPU effort; the engine shards.")
+        _p("ops=%d  DPs=%d  %.1fs" % (r.operations, r.distinguished_points, time.time() - t))
+        return 0 if r.solved else 1
+
+    # demo mode: plant and recover
+    t = time.time()
+    r = demo(bits=args.bits)
+    _p("DEMO  interval 2^%d  solved=%s  ops=%d (~2^%.1f)  %.1fs"
+       % (args.bits, r.solved, r.operations,
+          (r.operations or 1).bit_length() - 1, time.time() - t))
+    _p("  %s" % r.notes[-1])
+    _p("")
+    _p("Scaling to real puzzles: ops grow as 2^(bits/2).")
+    for n in (40, 66, 130, 135):
+        _p("  puzzle #%-3d  ~2^%.1f ops  %s" % (
+            n, n / 2 + 1,
+            "single machine" if n <= 50 else
+            "large GPU farm / distributed" if n <= 132 else
+            "bleeding edge (5x harder than #130)"))
+    return 0
+
+
 # --------------------------------------------------------------- explain-derivation
 def cmd_explain_derivation(args) -> int:
     import hashlib
@@ -988,6 +1038,13 @@ def main(argv=None) -> int:
                    help="key id you own, enabling private-key recovery for it")
     p.add_argument("--no-control", action="store_true")
     p.set_defaults(func=cmd_scan_pgp_nonces)
+
+    p = sub.add_parser("kangaroo",
+                       help="Pollard Kangaroo interval ECDLP solver (Bitcoin Puzzle)")
+    p.add_argument("--bits", type=int, default=32, help="interval size / puzzle number")
+    p.add_argument("--pubkey", help="exposed target pubkey (04||x||y hex); omit for demo")
+    p.add_argument("--max-ops", type=int, default=None)
+    p.set_defaults(func=cmd_kangaroo)
 
     p = sub.add_parser("explain-derivation",
                        help="print every deterministic step from private key to address")
