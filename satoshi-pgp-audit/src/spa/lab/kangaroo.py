@@ -114,6 +114,51 @@ def solve_interval(Q: Point, a: int, b: int, dp_bits: Optional[int] = None,
     return res
 
 
+def shard_bounds(a: int, b: int, workers: int, worker_id: int):
+    """Split [a, b) into `workers` disjoint, contiguous sub-ranges; return the one
+    for worker_id (0-based). This is the coordination primitive for a pool: every
+    worker gets a distinct slice, so no two ever scan the same key - the correct,
+    useful form of 'randomize to avoid overlap'.
+    """
+    if not (0 <= worker_id < workers):
+        raise ValueError("worker_id must be in [0, workers)")
+    span = b - a
+    lo = a + (span * worker_id) // workers
+    hi = a + (span * (worker_id + 1)) // workers
+    return lo, hi
+
+
+def benchmark(seconds: float = 2.0) -> float:
+    """Measure this machine's kangaroo step rate (point additions/sec)."""
+    import time
+    P = bs.point_mul(123456789)
+    step = bs.point_mul(2)
+    ops = 0
+    t0 = time.time()
+    while time.time() - t0 < seconds:
+        for _ in range(2000):
+            P = bs.point_add(P, step)
+        ops += 2000
+    return ops / (time.time() - t0)
+
+
+def verify_solution(pubkey: Point, priv: int,
+                    expected_address: Optional[str] = None) -> dict:
+    """Confirm a candidate key really matches the target - never announce a false
+    hit. Checks priv*G == pubkey and, if given, the derived P2PKH address."""
+    ok_point = bs.point_mul(priv) == pubkey
+    out = {"key_matches_pubkey": ok_point, "private_key_hex": "%064x" % priv}
+    if expected_address is not None:
+        derived = {
+            "uncompressed": bs.pubkey_to_address(pubkey, False),
+            "compressed": bs.pubkey_to_address(pubkey, True),
+        }
+        out["derived_addresses"] = derived
+        out["address_matches"] = expected_address in derived.values()
+    out["verified"] = ok_point and out.get("address_matches", True)
+    return out
+
+
 def estimate_cost(puzzle_bits: int, constant: float = 2.0):
     """Honest expected cost for a Bitcoin-puzzle-style interval.
 

@@ -524,7 +524,30 @@ def cmd_bruteforce(args) -> int:
 def cmd_kangaroo(args) -> int:
     import time
     from .analysis import bitcoin_scope as bs
-    from .lab.kangaroo import demo, estimate_cost, solve_interval
+    from .lab.kangaroo import (benchmark, demo, estimate_cost, shard_bounds,
+                               solve_interval, verify_solution)
+    if args.benchmark:
+        rate = benchmark()
+        _p("This machine: ~%.2e kangaroo steps/sec" % rate)
+        _p("(CUDA solvers run ~1e9-1e10/s - this Python engine is a reference.)")
+        return 0
+    if args.shard:
+        try:
+            workers, wid = (int(x) for x in args.shard.split(":"))
+        except Exception:
+            _p("--shard format is WORKERS:ID, e.g. 1000:0")
+            return 2
+        a = 1 << (args.bits - 1)
+        b = 1 << args.bits
+        lo, hi = shard_bounds(a, b, workers, wid)
+        _p("Shard %d of %d for puzzle #%d" % (wid, workers, args.bits))
+        _p("  full range : [2^%d, 2^%d)" % (args.bits - 1, args.bits))
+        _p("  your slice : [%x, %x)" % (lo, hi))
+        _p("  width      : 2^%.2f  (%.4f%% of the range)"
+           % (__import__("math").log2(hi - lo), 100.0 / workers))
+        _p("")
+        _p("Every worker gets a disjoint slice - no two ever scan the same key.")
+        return 0
     if args.estimate:
         e = estimate_cost(args.bits)
         _p("Kangaroo cost estimate for puzzle #%d" % args.bits)
@@ -1097,6 +1120,9 @@ def main(argv=None) -> int:
     p.add_argument("--max-ops", type=int, default=None)
     p.add_argument("--estimate", action="store_true",
                    help="print honest cost/time for puzzle #<bits>, no solving")
+    p.add_argument("--benchmark", action="store_true",
+                   help="measure this machine's kangaroo step rate")
+    p.add_argument("--shard", help="WORKERS:ID - print this worker's disjoint slice")
     p.set_defaults(func=cmd_kangaroo)
 
     p = sub.add_parser("explain-derivation",
