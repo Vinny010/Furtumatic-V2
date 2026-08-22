@@ -488,6 +488,38 @@ def cmd_scan_pgp_nonces(args) -> int:
     return 0
 
 
+# --------------------------------------------------------------- bruteforce
+def cmd_bruteforce(args) -> int:
+    import time
+    from .lab.bruteforce import demo, scan_range
+    _p("Address-based range brute force (needs only the address, NOT the pubkey)")
+    _p("=" * 74)
+    _p("Cost is O(range) - no sqrt shortcut (that needs the pubkey). Use when the")
+    _p("pubkey is hidden; hopeless above ~2^50 on modest hardware.")
+    _p("")
+    if args.hash160:
+        target = bytes.fromhex(args.hash160)
+        a = 1 << (args.bits - 1)
+        b = 1 << args.bits
+        t = time.time()
+        r = scan_range(target, a, b, max_scan=args.max_scan)
+        if r.solved:
+            _p("FOUND  private key = %064x  (%s)" % (r.private_key, r.notes[-1]))
+        else:
+            _p("not found: %s" % r.notes[-1])
+        _p("scanned=%d  %.1fs" % (r.scanned, time.time() - t))
+        return 0 if r.solved else 1
+    t = time.time()
+    r = demo(bits=args.bits)
+    _p("DEMO range 2^%d  solved=%s  scanned=%d  %.2fs" %
+       (args.bits, r.solved, r.scanned, time.time() - t))
+    _p("  %s" % r.notes[-1])
+    _p("")
+    _p("O(range) means each extra bit DOUBLES the work. Kangaroo (with a pubkey)")
+    _p("only adds ~0.5 bit of work per range bit - that is the whole difference.")
+    return 0
+
+
 # --------------------------------------------------------------- kangaroo
 def cmd_kangaroo(args) -> int:
     import time
@@ -1050,6 +1082,13 @@ def main(argv=None) -> int:
                    help="key id you own, enabling private-key recovery for it")
     p.add_argument("--no-control", action="store_true")
     p.set_defaults(func=cmd_scan_pgp_nonces)
+
+    p = sub.add_parser("bruteforce",
+                       help="address-based range brute force (no pubkey needed)")
+    p.add_argument("--bits", type=int, default=20, help="range size / puzzle number")
+    p.add_argument("--hash160", help="target hash160 (hex); omit for demo")
+    p.add_argument("--max-scan", type=int, default=None)
+    p.set_defaults(func=cmd_bruteforce)
 
     p = sub.add_parser("kangaroo",
                        help="Pollard Kangaroo interval ECDLP solver (Bitcoin Puzzle)")
