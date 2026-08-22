@@ -114,6 +114,115 @@ def solve_interval(Q: Point, a: int, b: int, dp_bits: Optional[int] = None,
     return res
 
 
+def solve_checkpointed(Q: Point, a: int, b: int, checkpoint_path: str,
+                       save_every: int = 20000, max_ops: Optional[int] = None,
+                       status_path: Optional[str] = None,
+                       progress_cb=None) -> KangarooResult:
+    """Kangaroo with crash-safe checkpointing and a status feed for a GUI.
+
+    Periodically writes full walker state (DP tables + positions) to
+    ``checkpoint_path``; on restart it reloads and continues where it left off, so a
+    24/7 run survives crashes/reboots. Also writes a small JSON to ``status_path``
+    for a progress window to read. Correctness is identical to solve_interval - this
+    only adds persistence.
+    """
+    import json
+    import os
+    import time
+
+    W = b - a
+    wbits = W.bit_length()
+    m = max(2, wbits // 2 + 2)
+    dists = [1 << i for i in range(m)]
+    jumpP = [bs.point_mul(d) for d in dists]
+    dp_bits = max(1, wbits // 2 - 5)
+    dp_mask = (1 << dp_bits) - 1
+    if max_ops is None:
+        max_ops = 64 * int((1 << (wbits // 2)) + 1)
+
+    def pt_key(P):
+        return "%x,%x" % P if P else "inf"
+
+    # ---- load checkpoint if present ----
+    tame_dp, wild_dp = {}, {}
+    if os.path.exists(checkpoint_path):
+        with open(checkpoint_path) as fh:
+            st = json.load(fh)
+        tame_pt = tuple(st["tame_pt"]) if st["tame_pt"] else None
+        wild_pt = tuple(st["wild_pt"]) if st["wild_pt"] else None
+        tame_sc, wild_sc = st["tame_sc"], st["wild_sc"]
+        tame_dp = {k: v for k, v in st["tame_dp"].items()}
+        wild_dp = {k: v for k, v in st["wild_dp"].items()}
+        ops = st["ops"]
+        resumed = True
+    else:
+        tame_pt, tame_sc = bs.point_mul(W // 2), W // 2
+        wild_pt = Q if not a else bs.point_add(Q, (bs.point_mul(a)[0],
+                                                   (-bs.point_mul(a)[1]) % bs.P))
+        wild_sc = 0
+        ops = 0
+        resumed = False
+
+    res = KangarooResult(False, interval_bits=wbits)
+    res.notes.append("resumed from checkpoint" if resumed else "fresh start")
+    t0 = time.time()
+    ops0 = ops
+
+    def save():
+        tmp = checkpoint_path + ".tmp"
+        with open(tmp, "w") as fh:
+            json.dump({"tame_pt": list(tame_pt) if tame_pt else None,
+                       "wild_pt": list(wild_pt) if wild_pt else None,
+                       "tame_sc": tame_sc, "wild_sc": wild_sc,
+                       "tame_dp": tame_dp, "wild_dp": wild_dp, "ops": ops}, fh)
+        os.replace(tmp, checkpoint_path)   # atomic: a crash mid-write can't corrupt it
+
+    def write_status(solved=False, key=None):
+        if not status_path:
+            return
+        rate = (ops - ops0) / max(time.time() - t0, 1e-9)
+        exp = 2 * (2 ** (wbits / 2))
+        st = {"puzzle_bits": wbits, "ops": ops, "distinguished_points": len(tame_dp) + len(wild_dp),
+              "rate_per_sec": rate, "percent_of_expected": 100 * ops / exp,
+              "solved": solved, "private_key_hex": ("%064x" % key) if key else None,
+              "updated": time.time()}
+        tmp = status_path + ".tmp"
+        with open(tmp, "w") as fh:
+            json.dump(st, fh)
+        os.replace(tmp, status_path)
+
+    while ops < max_ops:
+        i = tame_pt[0] % m
+        tame_pt = bs.point_add(tame_pt, jumpP[i]); tame_sc += dists[i]; ops += 1
+        if tame_pt and (tame_pt[0] & dp_mask) == 0:
+            tame_dp[pt_key(tame_pt)] = tame_sc
+            if pt_key(tame_pt) in wild_dp:
+                x = (a + tame_sc - wild_dp[pt_key(tame_pt)]) % bs.N
+                if bs.point_mul(x) == Q:
+                    res.solved, res.private_key, res.operations = True, x, ops
+                    save(); write_status(True, x)
+                    return res
+        j = wild_pt[0] % m
+        wild_pt = bs.point_add(wild_pt, jumpP[j]); wild_sc += dists[j]; ops += 1
+        if wild_pt and (wild_pt[0] & dp_mask) == 0:
+            wild_dp[pt_key(wild_pt)] = wild_sc
+            if pt_key(wild_pt) in tame_dp:
+                x = (a + tame_dp[pt_key(wild_pt)] - wild_sc) % bs.N
+                if bs.point_mul(x) == Q:
+                    res.solved, res.private_key, res.operations = True, x, ops
+                    save(); write_status(True, x)
+                    return res
+        if ops % save_every == 0:
+            save(); write_status()
+            if progress_cb:
+                progress_cb(ops, len(tame_dp) + len(wild_dp))
+
+    save(); write_status()
+    res.operations = ops
+    res.notes.append("paused at max_ops (checkpoint saved; rerun to continue)")
+    return res
+
+
 def shard_bounds(a: int, b: int, workers: int, worker_id: int):
     """Split [a, b) into `workers` disjoint, contiguous sub-ranges; return the one
     for worker_id (0-based). This is the coordination primitive for a pool: every
