@@ -114,6 +114,34 @@ def solve_interval(Q: Point, a: int, b: int, dp_bits: Optional[int] = None,
     return res
 
 
+def estimate_cost(puzzle_bits: int, constant: float = 2.0):
+    """Honest expected cost for a Bitcoin-puzzle-style interval.
+
+    Puzzle #n has its key in [2^(n-1), 2^n), so the interval width is 2^(n-1) and
+    Kangaroo expected work is ~constant * sqrt(width). Returns expected ops and
+    wall-clock at several real-world rates. No optimization changes the exponent;
+    the constant (~2.0 plain, ~1.6 with best multi-herd + negation) is the only
+    lever software gives you.
+    """
+    import math
+    width_bits = puzzle_bits - 1
+    ops = constant * (2 ** (width_bits / 2))
+    rates = {
+        "pure-Python engine (~4e4 ops/s)": 4e4,
+        "one high-end GPU (~1e9 ops/s)": 1e9,
+        "256-GPU farm (~2.5e11 ops/s)": 2.5e11,
+        "10,000-GPU farm (~1e13 ops/s)": 1e13,
+    }
+    year = 3.156e7
+    out = {"puzzle": puzzle_bits, "expected_ops": ops,
+           "expected_ops_log2": math.log2(ops), "times": {}}
+    for name, r in rates.items():
+        secs = ops / r
+        out["times"][name] = ("%.1f days" % (secs / 86400) if secs < year
+                              else "%.2e years" % (secs / year))
+    return out
+
+
 def demo(bits: int = 32, seed: int = 12345) -> KangarooResult:
     """Plant a random key in [2^(bits-1), 2^bits) and recover it - a real solve."""
     import random

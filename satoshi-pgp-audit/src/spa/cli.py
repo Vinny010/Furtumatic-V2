@@ -492,7 +492,19 @@ def cmd_scan_pgp_nonces(args) -> int:
 def cmd_kangaroo(args) -> int:
     import time
     from .analysis import bitcoin_scope as bs
-    from .lab.kangaroo import demo, solve_interval
+    from .lab.kangaroo import demo, estimate_cost, solve_interval
+    if args.estimate:
+        e = estimate_cost(args.bits)
+        _p("Kangaroo cost estimate for puzzle #%d" % args.bits)
+        _p("=" * 74)
+        _p("expected work ~ %.2e ops (2^%.1f)  [width 2^%d]"
+           % (e["expected_ops"], e["expected_ops_log2"], args.bits - 1))
+        for name, t in e["times"].items():
+            _p("  %-34s %s" % (name, t))
+        _p("")
+        _p("The exponent is fixed by sqrt(width); no start-point or direction")
+        _p("changes it. Software's only lever is the constant (~2.0 -> ~1.6).")
+        return 0
     _p("Pollard Kangaroo - interval ECDLP solver (Bitcoin Puzzle)")
     _p("=" * 74)
     _p("Needs the EXPOSED public key; solves x in [2^(bits-1), 2^bits).")
@@ -1044,6 +1056,8 @@ def main(argv=None) -> int:
     p.add_argument("--bits", type=int, default=32, help="interval size / puzzle number")
     p.add_argument("--pubkey", help="exposed target pubkey (04||x||y hex); omit for demo")
     p.add_argument("--max-ops", type=int, default=None)
+    p.add_argument("--estimate", action="store_true",
+                   help="print honest cost/time for puzzle #<bits>, no solving")
     p.set_defaults(func=cmd_kangaroo)
 
     p = sub.add_parser("explain-derivation",
