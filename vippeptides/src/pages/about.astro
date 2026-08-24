@@ -1,0 +1,76 @@
+---
+import Base from '../layouts/Base.astro';
+import { site } from '../config';
+---
+
+<Base
+  title="About"
+  description="VIP Peptides is a UK supplier of research-grade peptides, built around independent batch testing and straightforward documentation."
+>
+  <section class="page-head">
+    <div class="wrap">
+      <p class="eyebrow">About</p>
+      <h1>A supplier that shows its working</h1>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap prose">
+      <p class="lede">
+        {site.name} exists because buying research peptides in the UK is unnecessarily opaque. Too
+        much of the market runs on unbranded vials, recycled certificates and claims nobody can
+        check.
+      </p>
+
+      <h2>What we do differently</h2>
+      <p>
+        We keep the catalogue deliberately small. Every line is one we can source consistently from
+        a partner we have reviewed, hold in stock in the UK, and document properly. When we cannot
+        do all three, we do not list it.
+      </p>
+      <p>
+        Every batch goes to an independent laboratory before release — not the manufacturer's own
+        lab. The certificate of analysis is batch-specific and we will send it to you before you
+        order. If a batch does not meet specification it does not get sold; it does not quietly
+        become the next batch.
+      </p>
+
+      <h2>Who we supply</h2>
+      <p>
+        University departments, contract research organisations, formulation chemists and private
+        laboratories. We handle purchase orders, bulk quantities and custom vial sizes through the
+        same enquiry route as everything else.
+      </p>
+
+      <h2>What we will not do</h2>
+      <p>
+        We do not give dosing advice, administration protocols, or guidance of any kind on use in
+        humans or animals — not as a formality, but because our products are not for that and we
+        are not qualified to. If you ask, we will decline, politely and every time.
+      </p>
+      <p>
+        We also will not make therapeutic claims about anything we sell. Where the research
+        literature is interesting, we will point you at it and let you read it yourself.
+      </p>
+
+      <h2>Where we are</h2>
+      <p>
+        We are based in the United Kingdom and ship domestically on a tracked service. Contact us at
+        <a href={`mailto:${site.contact.email}`}>{site.contact.email}</a>; we answer
+        {' '}{site.contact.hours.toLowerCase()}.
+      </p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .page-head {
+    padding-block: clamp(2.5rem, 1.8rem + 3.5vw, 4.5rem) 0;
+  }
+
+  .page-head h1 {
+    font-size: var(--step-3);
+    margin-top: 0.6rem;
+    max-width: 20ch;
+  }
+</style>

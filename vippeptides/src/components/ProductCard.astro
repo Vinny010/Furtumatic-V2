@@ -1,0 +1,152 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  product: CollectionEntry<'products'>;
+}
+
+const { product } = Astro.props;
+const d = product.data;
+const price = new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(d.price);
+---
+
+<article class="product-card card">
+  <div class="product-head">
+    <span class="tag">{d.category}</span>
+    {!d.inStock && <span class="tag tag-out">Out of stock</span>}
+  </div>
+
+  <h3 class="product-name">
+    <a href={`/products/${product.id}`}>{d.name}</a>
+  </h3>
+
+  <p class="product-summary">{d.summary}</p>
+
+  <dl class="product-specs">
+    <div><dt>Vial</dt><dd>{d.vialSize}</dd></div>
+    <div><dt>Purity</dt><dd>{d.purity}</dd></div>
+    {d.cas && <div><dt>CAS</dt><dd>{d.cas}</dd></div>}
+  </dl>
+
+  <div class="product-foot">
+    <p class="product-price">{price}<span class="product-price-note">ex. VAT</span></p>
+    <button
+      class="btn btn-secondary add-btn"
+      type="button"
+      data-add-to-enquiry
+      data-sku={d.sku}
+      data-name={d.name}
+      data-vial-size={d.vialSize}
+      data-price={d.price}
+      disabled={!d.inStock}
+    >
+      {d.inStock ? 'Add to enquiry' : 'Unavailable'}
+    </button>
+  </div>
+</article>
+
+<style>
+  .product-card {
+    display: flex;
+    flex-direction: column;
+    padding: clamp(1.1rem, 0.9rem + 0.8vw, 1.6rem);
+    transition: border-color 0.15s ease, transform 0.15s ease;
+  }
+
+  .product-card:hover {
+    border-color: var(--line-strong);
+  }
+
+  .product-head {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .tag-out {
+    color: var(--ink-3);
+    border-style: dashed;
+  }
+
+  .product-name {
+    font-size: var(--step-1);
+    margin-top: 0.9rem;
+  }
+
+  .product-name a {
+    text-decoration: none;
+  }
+
+  /* Makes the whole card clickable without nesting interactive elements. */
+  .product-name a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  .product-card {
+    position: relative;
+  }
+
+  .product-summary {
+    color: var(--ink-2);
+    font-size: var(--step--1);
+    margin-top: 0.45rem;
+  }
+
+  .product-specs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 1.25rem;
+    margin-top: 1.1rem;
+    padding-top: 1.1rem;
+    border-top: 1px solid var(--line);
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+  }
+
+  .product-specs div {
+    display: flex;
+    gap: 0.4em;
+  }
+
+  .product-specs dt {
+    color: var(--ink-3);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .product-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: auto;
+    padding-top: 1.25rem;
+  }
+
+  .product-price {
+    font-family: var(--font-mono);
+    font-size: var(--step-1);
+  }
+
+  .product-price-note {
+    display: block;
+    font-size: 0.68rem;
+    color: var(--ink-3);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  /* Raised above the card-wide link overlay so the button stays clickable. */
+  .add-btn {
+    position: relative;
+    z-index: 1;
+  }
+
+  .add-btn.is-added {
+    border-color: var(--positive);
+    color: var(--positive);
+  }
+</style>

@@ -1,0 +1,106 @@
+---
+/*
+ * TEMPLATE DOCUMENT — must be reviewed by a UK solicitor before launch.
+ * See README.md ("Before you go live") for the full list of legal follow-ups.
+ */
+import Legal from '../../layouts/Legal.astro';
+import { site, RESEARCH_USE_NOTICE } from '../../config';
+---
+
+<Legal
+  title="Research Use Disclaimer"
+  description="The terms on which VIP Peptides supplies research materials, and the responsibilities accepted by the purchaser."
+  updated="August 2026"
+>
+  <p class="lede">{RESEARCH_USE_NOTICE}</p>
+
+  <h2>1. Nature of the products</h2>
+  <p>
+    All products supplied by {site.company.legalName} (&ldquo;{site.name}&rdquo;) are chemical
+    reference materials intended solely for in-vitro laboratory research conducted by qualified
+    persons. They are supplied for no other purpose.
+  </p>
+  <p>Our products are <strong>not</strong>:</p>
+  <ul>
+    <li>medicinal products, and hold no marketing authorisation from the MHRA or any other regulator;</li>
+    <li>food, food supplements, or nutritional products of any kind;</li>
+    <li>cosmetic products intended for application to the human body;</li>
+    <li>veterinary products;</li>
+    <li>intended, packaged, or labelled for administration to humans or animals by any route.</li>
+  </ul>
+  <p>
+    None of our products has been evaluated by any regulatory authority for safety, purity or
+    efficacy in humans or animals.
+  </p>
+
+  <h2>2. No claims</h2>
+  <p>
+    We make no representation that any product is suitable for the diagnosis, treatment, cure or
+    prevention of any condition. Where our product pages reference scientific literature, they do so
+    to describe the research context in which a compound has been studied. Nothing on this website
+    constitutes medical advice, a therapeutic claim, or a recommendation of use.
+  </p>
+  <p>
+    We do not supply dosing information, administration protocols, or guidance on use in humans or
+    animals, and we will decline requests for such information.
+  </p>
+
+  <h2>3. Purchaser responsibilities</h2>
+  <p>By placing an order you represent and warrant that:</p>
+  <ul>
+    <li>you are aged {site.minimumAge} or over;</li>
+    <li>
+      you are a qualified researcher, or are purchasing on behalf of a research institution,
+      laboratory or business, and are competent to handle the materials safely;
+    </li>
+    <li>
+      you will use the products strictly for in-vitro laboratory research and for no other purpose;
+    </li>
+    <li>
+      you will not administer any product to yourself, to any other person, or to any animal, and
+      will not supply it to any person who intends to do so;
+    </li>
+    <li>
+      you are responsible for determining that your intended use is lawful in your jurisdiction,
+      and for obtaining any authorisation, licence or ethical approval that use requires;
+    </li>
+    <li>
+      you will handle, store, label and dispose of the materials in accordance with applicable
+      health and safety legislation, including the Control of Substances Hazardous to Health
+      Regulations 2002 (COSHH).
+    </li>
+  </ul>
+
+  <h2>4. Resale and onward supply</h2>
+  <p>
+    You may not resell, repackage or otherwise supply our products to any third party for human or
+    animal consumption, or in any manner that misrepresents them as being fit for such use. Doing so
+    may constitute a criminal offence and will terminate any further supply from us.
+  </p>
+
+  <h2>5. Limitation of liability</h2>
+  <p>
+    To the fullest extent permitted by law, {site.company.legalName} accepts no liability for any
+    loss, damage or injury arising from the misuse of its products, from any use other than
+    in-vitro laboratory research, or from any failure by the purchaser to comply with the
+    obligations set out above.
+  </p>
+  <p>
+    Nothing in this disclaimer excludes or limits our liability for death or personal injury caused
+    by our negligence, for fraud or fraudulent misrepresentation, or for any other liability that
+    cannot lawfully be excluded.
+  </p>
+
+  <h2>6. Right to refuse</h2>
+  <p>
+    We reserve the right to refuse or cancel any order, at our sole discretion and without stating
+    a reason, including where we have grounds to believe the products may be used other than as
+    permitted above.
+  </p>
+
+  <h2>7. Questions</h2>
+  <p>
+    Contact <a href={`mailto:${site.contact.email}`}>{site.contact.email}</a> if anything here is
+    unclear before you order.
+  </p>
+</Legal>

@@ -1,0 +1,24 @@
+---
+interface Props {
+  rows: Array<{ label: string; value: string | undefined }>;
+}
+
+const { rows } = Astro.props;
+const visible = rows.filter((row) => row.value);
+---
+
+<div class="table-scroll">
+  <table>
+    <caption class="visually-hidden">Product specification</caption>
+    <tbody>
+      {
+        visible.map((row) => (
+          <tr>
+            <th scope="row">{row.label}</th>
+            <td>{row.value}</td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+</div>

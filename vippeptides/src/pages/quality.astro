@@ -1,0 +1,211 @@
+---
+import Base from '../layouts/Base.astro';
+
+const steps = [
+  {
+    n: '01',
+    title: 'Sourced from audited synthesis partners',
+    body: 'We buy from a small number of manufacturers whose facilities and quality systems we have reviewed. We do not buy on spot markets and we do not resell material of unknown provenance.',
+  },
+  {
+    n: '02',
+    title: 'Independent third-party analysis',
+    body: 'Every batch is sent to an independent laboratory — not the manufacturer — for high-performance liquid chromatography and mass spectrometry. Purity and identity are both confirmed before the batch is released.',
+  },
+  {
+    n: '03',
+    title: 'Batch coded and documented',
+    body: 'Each vial is labelled with a batch code that maps to a single certificate of analysis. Nothing is pooled across batches, and the COA is available on request before you order.',
+  },
+  {
+    n: '04',
+    title: 'Stored and shipped cold',
+    body: 'Material is held lyophilised at -20°C under an inert headspace from arrival until dispatch. Orders leave in insulated packaging on a tracked UK service.',
+  },
+];
+
+const tests = [
+  { test: 'Purity', method: 'RP-HPLC, UV detection at 220nm', spec: '≥98–99% depending on line' },
+  { test: 'Identity', method: 'ESI-MS / MALDI-TOF', spec: 'Observed mass within tolerance' },
+  { test: 'Appearance', method: 'Visual inspection', spec: 'White to off-white lyophilised cake' },
+  { test: 'Net peptide content', method: 'Reported on COA where determined', spec: 'Batch specific' },
+];
+---
+
+<Base
+  title="Quality & testing"
+  description="How VIP Peptides sources, tests and documents every batch: independent HPLC and mass-spectrometry analysis, batch-specific certificates of analysis, and cold-chain handling."
+>
+  <section class="page-head">
+    <div class="wrap">
+      <p class="eyebrow">Quality</p>
+      <h1>How we test</h1>
+      <p class="lede">
+        Research is only as good as the material it runs on. Here is exactly what happens between a
+        synthesis partner and the vial that arrives at your bench.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <ol class="steps">
+        {
+          steps.map((step) => (
+            <li class="step">
+              <span class="step-n mono">{step.n}</span>
+              <div>
+                <h2>{step.title}</h2>
+                <p>{step.body}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="section testing">
+    <div class="wrap">
+      <h2 class="section-title">What the certificate covers</h2>
+      <p class="lede">Every COA reports at minimum the following.</p>
+      <div class="table-scroll coa-table">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Test</th>
+              <th scope="col">Method</th>
+              <th scope="col">Specification</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              tests.map((row) => (
+                <tr>
+                  <th scope="row">{row.test}</th>
+                  <td>{row.method}</td>
+                  <td>{row.spec}</td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+      <p class="note">
+        Certificates are batch-specific. If you need the COA for the batch currently in stock before
+        placing an order, ask and we will send it — that is a normal request, not an awkward one.
+      </p>
+    </div>
+  </section>
+
+  <section class="section limits">
+    <div class="wrap prose">
+      <h2>What we do not claim</h2>
+      <p>
+        We are a supplier of research materials. We do not manufacture medicines, we hold no
+        marketing authorisation, and nothing we supply has been assessed by the MHRA or any other
+        regulator for safety or efficacy in humans or animals.
+      </p>
+      <p>
+        We do not provide dosing information, protocols, or any guidance on administration, and we
+        will not do so if asked. Our documentation covers identity, purity, handling and storage —
+        the properties of the material itself.
+      </p>
+      <p>
+        Determining whether a material is appropriate and lawful for your intended research, and
+        handling it safely, is your responsibility as the researcher.
+      </p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .page-head {
+    padding-block: clamp(2.5rem, 1.8rem + 3.5vw, 4.5rem) 0;
+  }
+
+  .page-head h1 {
+    font-size: var(--step-3);
+    margin-top: 0.6rem;
+  }
+
+  .page-head .lede {
+    margin-top: 1rem;
+  }
+
+  .steps {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 0;
+    max-width: 78ch;
+  }
+
+  .step {
+    display: grid;
+    grid-template-columns: 4.5rem 1fr;
+    gap: 1.5rem;
+    padding-block: 2rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .step:last-child {
+    border-bottom: 1px solid var(--line);
+  }
+
+  .step-n {
+    color: var(--brass-ink);
+    letter-spacing: 0.1em;
+    padding-top: 0.35em;
+  }
+
+  .step h2 {
+    font-size: var(--step-1);
+  }
+
+  .step p {
+    margin-top: 0.6rem;
+    color: var(--ink-2);
+  }
+
+  .testing {
+    border-top: 1px solid var(--line);
+    background: var(--surface-2);
+  }
+
+  .section-title {
+    font-size: var(--step-2);
+  }
+
+  .testing .lede {
+    margin-top: 0.75rem;
+  }
+
+  .coa-table {
+    margin-top: 2rem;
+    background: var(--surface);
+  }
+
+  .coa-table th[scope='row'] {
+    font-family: var(--font-body);
+    color: var(--ink);
+  }
+
+  .note {
+    margin-top: 1.25rem;
+    font-size: var(--step--1);
+    color: var(--ink-2);
+    max-width: var(--measure);
+  }
+
+  .limits {
+    border-top: 1px solid var(--line);
+  }
+
+  @media (max-width: 560px) {
+    .step {
+      grid-template-columns: 1fr;
+      gap: 0.5rem;
+    }
+  }
+</style>

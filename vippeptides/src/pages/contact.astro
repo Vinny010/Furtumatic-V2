@@ -1,0 +1,269 @@
+---
+import Base from '../layouts/Base.astro';
+import { site, RESEARCH_USE_NOTICE } from '../config';
+---
+
+<Base
+  title="Contact"
+  description={`Get in touch with ${site.name} about products, certificates of analysis, bulk quantities or institutional accounts.`}
+>
+  <section class="page-head">
+    <div class="wrap">
+      <p class="eyebrow">Contact</p>
+      <h1>Talk to us</h1>
+      <p class="lede">
+        Questions about a product, a certificate of analysis, bulk pricing or setting up an account
+        — all of it comes to the same inbox and we answer {site.contact.hours.toLowerCase()}.
+      </p>
+    </div>
+  </section>
+
+  <section class="section contact-layout wrap">
+    <div class="contact-details">
+      <h2>Direct</h2>
+      <dl>
+        <div>
+          <dt>General</dt>
+          <dd><a href={`mailto:${site.contact.email}`}>{site.contact.email}</a></dd>
+        </div>
+        <div>
+          <dt>Orders &amp; quotes</dt>
+          <dd><a href={`mailto:${site.contact.salesEmail}`}>{site.contact.salesEmail}</a></dd>
+        </div>
+        {
+          site.contact.phone && (
+            <div>
+              <dt>Phone</dt>
+              <dd>
+                <a href={`tel:${site.contact.phone.replace(/\s/g, '')}`}>{site.contact.phone}</a>
+              </dd>
+            </div>
+          )
+        }
+        <div>
+          <dt>Hours</dt>
+          <dd>{site.contact.hours}</dd>
+        </div>
+      </dl>
+
+      <p class="aside-note">
+        Building an order? Add items to an <a href="/enquiry">enquiry list</a> instead — it comes
+        through with quantities and SKUs already attached, which saves a round trip.
+      </p>
+    </div>
+
+    <form class="contact-form" method="POST" action={site.formEndpoint || undefined} data-contact-form>
+      <h2>Send a message</h2>
+
+      <div class="field">
+        <label for="name">Full name <span aria-hidden="true">*</span></label>
+        <input type="text" id="name" name="name" autocomplete="name" required />
+      </div>
+
+      <div class="field">
+        <label for="email">Email <span aria-hidden="true">*</span></label>
+        <input type="email" id="email" name="email" autocomplete="email" required />
+      </div>
+
+      <div class="field">
+        <label for="organisation">Organisation</label>
+        <input type="text" id="organisation" name="organisation" autocomplete="organization" />
+      </div>
+
+      <div class="field">
+        <label for="subject">Subject</label>
+        <select id="subject" name="subject">
+          <option>Product question</option>
+          <option>Certificate of analysis request</option>
+          <option>Bulk or custom quantity</option>
+          <option>Institutional account or purchase order</option>
+          <option>Order status</option>
+          <option>Something else</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="message">Message <span aria-hidden="true">*</span></label>
+        <textarea id="message" name="message" rows="6" required></textarea>
+      </div>
+
+      <div class="field consent">
+        <label class="checkbox">
+          <input type="checkbox" name="research_use" required />
+          <span>
+            I am {site.minimumAge} or over and understand that {RESEARCH_USE_NOTICE.charAt(0).toLowerCase() + RESEARCH_USE_NOTICE.slice(1)}
+          </span>
+        </label>
+      </div>
+
+      <button class="btn btn-primary" type="submit">Send message</button>
+      <p class="form-note" data-fallback-note hidden>
+        This opens your email client with the message ready to send.
+      </p>
+    </form>
+  </section>
+</Base>
+
+<style>
+  .page-head {
+    padding-block: clamp(2.5rem, 1.8rem + 3.5vw, 4.5rem) 0;
+  }
+
+  .page-head h1 {
+    font-size: var(--step-3);
+    margin-top: 0.6rem;
+  }
+
+  .page-head .lede {
+    margin-top: 1rem;
+  }
+
+  .contact-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 18rem) minmax(0, 1fr);
+    gap: clamp(2rem, 1rem + 4vw, 4.5rem);
+    align-items: start;
+  }
+
+  h2 {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--ink-3);
+    margin-bottom: 1.5rem;
+  }
+
+  .contact-details dl > div + div {
+    margin-top: 1.25rem;
+  }
+
+  .contact-details dt {
+    font-size: var(--step--1);
+    color: var(--ink-3);
+  }
+
+  .contact-details dd {
+    margin: 0.2rem 0 0;
+  }
+
+  .contact-details a {
+    color: var(--brass-ink);
+    text-decoration: none;
+  }
+
+  .contact-details a:hover {
+    text-decoration: underline;
+  }
+
+  .aside-note {
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--line);
+    font-size: var(--step--1);
+    color: var(--ink-2);
+  }
+
+  .aside-note a {
+    color: var(--brass-ink);
+  }
+
+  .field + .field,
+  .field + .btn,
+  .consent + .btn {
+    margin-top: 1.25rem;
+  }
+
+  .field label {
+    display: block;
+    font-size: var(--step--1);
+    margin-bottom: 0.4rem;
+  }
+
+  .field label span[aria-hidden] {
+    color: var(--brass-ink);
+  }
+
+  input[type='text'],
+  input[type='email'],
+  textarea,
+  select {
+    width: 100%;
+    padding: 0.65em 0.85em;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+    background: var(--surface);
+    font-size: var(--step-0);
+  }
+
+  textarea {
+    resize: vertical;
+  }
+
+  .checkbox {
+    display: flex;
+    gap: 0.85rem;
+    align-items: start;
+    font-size: var(--step--1);
+    color: var(--ink-2);
+    line-height: 1.55;
+  }
+
+  .checkbox input {
+    margin-top: 0.3em;
+    flex: none;
+    width: 1rem;
+    height: 1rem;
+    accent-color: var(--brass);
+  }
+
+  .consent {
+    padding: 1rem 1.15rem;
+    border: 1px solid var(--warning-line);
+    background: var(--warning-bg);
+    border-radius: var(--radius-lg);
+  }
+
+  .form-note {
+    margin-top: 0.75rem;
+    font-size: var(--step--1);
+    color: var(--ink-3);
+  }
+
+  @media (max-width: 800px) {
+    .contact-layout {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  import { site } from '../config';
+
+  // With no form endpoint configured, fall back to a mailto: submission.
+  if (!site.formEndpoint) {
+    const form = document.querySelector<HTMLFormElement>('[data-contact-form]');
+    const note = document.querySelector<HTMLElement>('[data-fallback-note]');
+    if (note) note.hidden = false;
+
+    form?.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const data = new FormData(form);
+      const body = [
+        `Name: ${data.get('name') ?? ''}`,
+        `Email: ${data.get('email') ?? ''}`,
+        `Organisation: ${data.get('organisation') || '—'}`,
+        '',
+        String(data.get('message') ?? ''),
+        '',
+        'Confirmed: research use only, 18+.',
+      ].join('\n');
+
+      window.location.href =
+        `mailto:${site.contact.email}` +
+        `?subject=${encodeURIComponent(String(data.get('subject') ?? 'Website enquiry'))}` +
+        `&body=${encodeURIComponent(body)}`;
+    });
+  }
+</script>

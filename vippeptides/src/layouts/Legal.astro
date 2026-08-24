@@ -1,0 +1,128 @@
+---
+import Base from './Base.astro';
+import { legalNav } from '../config';
+
+interface Props {
+  title: string;
+  description?: string;
+  updated: string;
+}
+
+const { title, description, updated } = Astro.props;
+const path = Astro.url.pathname.replace(/\/$/, '');
+---
+
+<Base title={title} description={description}>
+  <section class="legal-head">
+    <div class="wrap">
+      <p class="eyebrow">Legal</p>
+      <h1>{title}</h1>
+      <p class="updated mono">Last updated {updated}</p>
+    </div>
+  </section>
+
+  <div class="wrap legal-layout">
+    <nav class="legal-nav" aria-label="Legal documents">
+      <ul>
+        {
+          legalNav.map((item) => (
+            <li>
+              <a href={item.href} aria-current={path === item.href ? 'page' : undefined}>
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <article class="prose legal-body">
+      <slot />
+    </article>
+  </div>
+</Base>
+
+<style>
+  .legal-head {
+    padding-block: clamp(2.5rem, 1.8rem + 3.5vw, 4.5rem) 0;
+  }
+
+  .legal-head h1 {
+    font-size: var(--step-3);
+    margin-top: 0.6rem;
+  }
+
+  .updated {
+    margin-top: 0.9rem;
+    color: var(--ink-3);
+  }
+
+  .legal-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 15rem) minmax(0, 1fr);
+    gap: clamp(2rem, 1rem + 4vw, 4.5rem);
+    align-items: start;
+    padding-block: 2.5rem clamp(3rem, 2rem + 4vw, 5.5rem);
+  }
+
+  .legal-nav {
+    position: sticky;
+    top: 6rem;
+  }
+
+  .legal-nav ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .legal-nav li + li {
+    margin-top: 0.2rem;
+  }
+
+  .legal-nav a {
+    display: block;
+    padding: 0.5rem 0.85rem;
+    font-size: var(--step--1);
+    text-decoration: none;
+    color: var(--ink-2);
+    border-left: 2px solid var(--line);
+    border-radius: 0 var(--radius) var(--radius) 0;
+  }
+
+  .legal-nav a:hover {
+    background: var(--brass-soft);
+    color: var(--ink);
+  }
+
+  .legal-nav a[aria-current='page'] {
+    border-left-color: var(--brass);
+    color: var(--ink);
+    background: var(--brass-soft);
+  }
+
+  .legal-body :global(h2:first-child) {
+    margin-top: 0;
+  }
+
+  @media (max-width: 800px) {
+    .legal-layout {
+      grid-template-columns: 1fr;
+    }
+
+    .legal-nav {
+      position: static;
+    }
+
+    .legal-nav ul {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+    }
+
+    .legal-nav a {
+      border-left: 0;
+      border: 1px solid var(--line-strong);
+      border-radius: 999px;
+    }
+  }
+</style>

@@ -1,0 +1,387 @@
+---
+import Base from '../layouts/Base.astro';
+import { site, RESEARCH_USE_NOTICE } from '../config';
+---
+
+<Base
+  title="Your enquiry"
+  description="Review the products you have selected and send them to VIP Peptides as a single enquiry."
+  noindex
+>
+  <section class="wrap enquiry-page">
+    <p class="eyebrow">Step 1 of 2</p>
+    <h1>Your enquiry</h1>
+    <p class="lede">
+      Review your selection, then send it over. We reply with current batch availability, the
+      certificate of analysis for each line, and a delivered total including VAT and shipping.
+    </p>
+
+    <div class="enquiry-empty" data-empty hidden>
+      <p>Your enquiry list is empty.</p>
+      <a class="btn btn-primary" href="/products">Browse the catalogue</a>
+    </div>
+
+    <div data-filled hidden>
+      <div class="table-scroll enquiry-table">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Product</th>
+              <th scope="col">Vial</th>
+              <th scope="col" class="num">Unit</th>
+              <th scope="col" class="num">Qty</th>
+              <th scope="col" class="num">Line total</th>
+              <th scope="col"><span class="visually-hidden">Remove</span></th>
+            </tr>
+          </thead>
+          <tbody data-rows></tbody>
+          <tfoot>
+            <tr>
+              <th scope="row" colspan="4">Subtotal (excl. VAT and shipping)</th>
+              <td class="num" data-subtotal>£0.00</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <button class="btn btn-secondary clear-btn" type="button" data-clear>Clear list</button>
+
+      <p class="eyebrow form-step">Step 2 of 2</p>
+      <h2 class="form-title">Your details</h2>
+
+      <form class="enquiry-form" data-form method="POST" action={site.formEndpoint || undefined}>
+        <div class="field">
+          <label for="name">Full name <span aria-hidden="true">*</span></label>
+          <input type="text" id="name" name="name" autocomplete="name" required />
+        </div>
+
+        <div class="field">
+          <label for="email">Email <span aria-hidden="true">*</span></label>
+          <input type="email" id="email" name="email" autocomplete="email" required />
+        </div>
+
+        <div class="field">
+          <label for="organisation">Organisation or institution</label>
+          <input type="text" id="organisation" name="organisation" autocomplete="organization" />
+        </div>
+
+        <div class="field">
+          <label for="phone">Phone</label>
+          <input type="tel" id="phone" name="phone" autocomplete="tel" />
+        </div>
+
+        <div class="field field-wide">
+          <label for="message">Anything else we should know?</label>
+          <textarea id="message" name="message" rows="4"
+            placeholder="Bulk quantities, custom vial sizes, purchase order requirements, COA requests…"></textarea>
+        </div>
+
+        <!-- Populated on submit so the enquiry list travels with the form. -->
+        <input type="hidden" name="products" data-products-field />
+        <input type="hidden" name="_subject" value="Website enquiry — VIP Peptides" />
+
+        <div class="field field-wide consent">
+          <label class="checkbox">
+            <input type="checkbox" name="research_use" required />
+            <span>
+              I confirm I am {site.minimumAge} or over and that any materials supplied will be used
+              strictly for laboratory research purposes. {RESEARCH_USE_NOTICE}
+            </span>
+          </label>
+        </div>
+
+        <div class="field-wide">
+          <button class="btn btn-primary submit-btn" type="submit">Send enquiry</button>
+          <p class="form-note" data-fallback-note hidden>
+            This opens your email client with the enquiry ready to send.
+          </p>
+        </div>
+      </form>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .enquiry-page {
+    padding-block: clamp(2.5rem, 1.8rem + 3.5vw, 4.5rem) clamp(3rem, 2rem + 4vw, 5.5rem);
+    max-width: 880px;
+  }
+
+  .enquiry-page h1 {
+    font-size: var(--step-3);
+    margin-top: 0.6rem;
+  }
+
+  .enquiry-page .lede {
+    margin-top: 1rem;
+  }
+
+  .enquiry-empty {
+    margin-top: 3rem;
+    padding: 3rem 1.5rem;
+    border: 1px dashed var(--line-strong);
+    border-radius: var(--radius-lg);
+    text-align: center;
+    color: var(--ink-2);
+  }
+
+  .enquiry-empty .btn {
+    margin-top: 1.5rem;
+  }
+
+  .enquiry-table {
+    margin-top: 2.5rem;
+    background: var(--surface);
+  }
+
+  .num {
+    text-align: right;
+  }
+
+  thead th {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  tfoot th {
+    text-align: right;
+    font-weight: 500;
+    color: var(--ink);
+  }
+
+  tfoot td {
+    font-size: var(--step-0);
+  }
+
+  .qty-input {
+    width: 4.5rem;
+    padding: 0.35em 0.5em;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+    background: var(--paper);
+    font-family: var(--font-mono);
+    text-align: right;
+  }
+
+  .remove-btn {
+    border: 0;
+    background: none;
+    color: var(--ink-3);
+    cursor: pointer;
+    padding: 0.25em 0.4em;
+    line-height: 1;
+    font-size: 1.1rem;
+  }
+
+  .remove-btn:hover {
+    color: var(--ink);
+  }
+
+  .clear-btn {
+    margin-top: 1rem;
+  }
+
+  .form-step {
+    margin-top: 3.5rem;
+  }
+
+  .form-title {
+    font-size: var(--step-2);
+    margin-top: 0.4rem;
+  }
+
+  .enquiry-form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.25rem;
+    margin-top: 1.75rem;
+  }
+
+  .field-wide {
+    grid-column: 1 / -1;
+  }
+
+  .field label {
+    display: block;
+    font-size: var(--step--1);
+    margin-bottom: 0.4rem;
+  }
+
+  .field label span[aria-hidden] {
+    color: var(--brass-ink);
+  }
+
+  input[type='text'],
+  input[type='email'],
+  input[type='tel'],
+  textarea {
+    width: 100%;
+    padding: 0.65em 0.85em;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+    background: var(--surface);
+    font-size: var(--step-0);
+  }
+
+  textarea {
+    resize: vertical;
+  }
+
+  .checkbox {
+    display: flex;
+    gap: 0.85rem;
+    align-items: start;
+    font-size: var(--step--1);
+    color: var(--ink-2);
+    line-height: 1.55;
+  }
+
+  .checkbox input {
+    margin-top: 0.3em;
+    flex: none;
+    width: 1rem;
+    height: 1rem;
+    accent-color: var(--brass);
+  }
+
+  .consent {
+    padding: 1rem 1.15rem;
+    border: 1px solid var(--warning-line);
+    background: var(--warning-bg);
+    border-radius: var(--radius-lg);
+  }
+
+  .form-note {
+    margin-top: 0.75rem;
+    font-size: var(--step--1);
+    color: var(--ink-3);
+  }
+</style>
+
+<script>
+  import { getItems, setQuantity, removeItem, clear, subtotal, formatGBP } from '../scripts/enquiry';
+  import { site } from '../config';
+
+  const emptyEl = document.querySelector<HTMLElement>('[data-empty]');
+  const filledEl = document.querySelector<HTMLElement>('[data-filled]');
+  const rowsEl = document.querySelector<HTMLElement>('[data-rows]');
+  const subtotalEl = document.querySelector<HTMLElement>('[data-subtotal]');
+  const form = document.querySelector<HTMLFormElement>('[data-form]');
+  const productsField = document.querySelector<HTMLInputElement>('[data-products-field]');
+  const fallbackNote = document.querySelector<HTMLElement>('[data-fallback-note]');
+
+  /** With no form endpoint configured we fall back to a mailto: submission. */
+  const usesMailto = !site.formEndpoint;
+  if (usesMailto && fallbackNote) fallbackNote.hidden = false;
+
+  function render(): void {
+    const items = getItems();
+    const isEmpty = items.length === 0;
+
+    if (emptyEl) emptyEl.hidden = !isEmpty;
+    if (filledEl) filledEl.hidden = isEmpty;
+    if (!rowsEl) return;
+
+    rowsEl.replaceChildren();
+
+    for (const item of items) {
+      const tr = document.createElement('tr');
+
+      const name = document.createElement('th');
+      name.scope = 'row';
+      name.textContent = item.name;
+
+      const vial = document.createElement('td');
+      vial.textContent = item.vialSize;
+
+      const unit = document.createElement('td');
+      unit.className = 'num';
+      unit.textContent = formatGBP(item.price);
+
+      const qty = document.createElement('td');
+      qty.className = 'num';
+      const input = document.createElement('input');
+      input.type = 'number';
+      input.min = '1';
+      input.max = '99';
+      input.value = String(item.quantity);
+      input.className = 'qty-input';
+      input.setAttribute('aria-label', `Quantity of ${item.name}`);
+      input.addEventListener('change', () => {
+        setQuantity(item.sku, Number(input.value));
+        render();
+      });
+      qty.append(input);
+
+      const line = document.createElement('td');
+      line.className = 'num';
+      line.textContent = formatGBP(item.price * item.quantity);
+
+      const actions = document.createElement('td');
+      const remove = document.createElement('button');
+      remove.type = 'button';
+      remove.className = 'remove-btn';
+      remove.textContent = '×';
+      remove.setAttribute('aria-label', `Remove ${item.name}`);
+      remove.addEventListener('click', () => {
+        removeItem(item.sku);
+        render();
+      });
+      actions.append(remove);
+
+      tr.append(name, vial, unit, qty, line, actions);
+      rowsEl.append(tr);
+    }
+
+    if (subtotalEl) subtotalEl.textContent = formatGBP(subtotal());
+  }
+
+  document.querySelector('[data-clear]')?.addEventListener('click', () => {
+    clear();
+    render();
+  });
+
+  function summariseItems(): string {
+    return getItems()
+      .map((i) => `${i.quantity} × ${i.name} (${i.vialSize}, ${i.sku}) — ${formatGBP(i.price * i.quantity)}`)
+      .join('\n');
+  }
+
+  form?.addEventListener('submit', (event) => {
+    const summary = summariseItems();
+    if (productsField) {
+      productsField.value = `${summary}\n\nSubtotal: ${formatGBP(subtotal())} (excl. VAT and shipping)`;
+    }
+
+    if (!usesMailto) return; // let the configured endpoint handle it
+
+    event.preventDefault();
+    const data = new FormData(form);
+    const lines = [
+      `Name: ${data.get('name') ?? ''}`,
+      `Email: ${data.get('email') ?? ''}`,
+      `Organisation: ${data.get('organisation') || '—'}`,
+      `Phone: ${data.get('phone') || '—'}`,
+      '',
+      'Products:',
+      summary,
+      '',
+      `Subtotal: ${formatGBP(subtotal())} (excl. VAT and shipping)`,
+      '',
+      `Notes: ${data.get('message') || '—'}`,
+      '',
+      'Confirmed: research use only, 18+.',
+    ].join('\n');
+
+    const href =
+      `mailto:${site.contact.salesEmail}` +
+      `?subject=${encodeURIComponent('Website enquiry — VIP Peptides')}` +
+      `&body=${encodeURIComponent(lines)}`;
+    window.location.href = href;
+  });
+
+  render();
+</script>

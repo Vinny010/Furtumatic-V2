@@ -1,0 +1,214 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import ProductCard from '../components/ProductCard.astro';
+import { site } from '../config';
+
+const products = await getCollection('products');
+const featured = products
+  .filter((p) => p.data.featured)
+  .sort((a, b) => a.data.order - b.data.order)
+  .slice(0, 4);
+
+const assurances = [
+  {
+    title: 'Third-party tested',
+    body: 'Every batch is analysed by an independent laboratory. HPLC purity and mass-spectrometry identity, with the certificate available before you order.',
+  },
+  {
+    title: 'Batch traceability',
+    body: 'Each vial carries a batch code that maps to its own certificate of analysis. Nothing is pooled, relabelled or resold from unverified stock.',
+  },
+  {
+    title: 'Cold-chain handling',
+    body: 'Lyophilised under an inert headspace and stored at -20°C until dispatch. Orders ship with insulated packaging as standard.',
+  },
+  {
+    title: 'UK dispatch',
+    body: `Shipped from within the UK on a tracked service. ${site.contact.hours.replace('Monday to Friday', 'Orders placed before 2pm Monday to Friday')} are dispatched the same day.`,
+  },
+];
+---
+
+<Base title={site.name} description={site.description}>
+  <section class="hero">
+    <div class="wrap hero-inner">
+      <p class="eyebrow">UK research supply</p>
+      <h1>Research-grade peptides,<br /><em>independently tested.</em></h1>
+      <p class="lede">
+        Every batch analysed by a third-party laboratory, documented with a certificate of
+        analysis, and dispatched from the UK. Supplied for in-vitro laboratory research only.
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="/products">Browse the catalogue</a>
+        <a class="btn btn-secondary" href="/quality">How we test</a>
+      </div>
+
+      <dl class="hero-stats">
+        <div><dt>Purity specification</dt><dd>≥98–99%</dd></div>
+        <div><dt>Analysis</dt><dd>HPLC + MS</dd></div>
+        <div><dt>Dispatch</dt><dd>UK, tracked</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="section assurance-section">
+    <div class="wrap">
+      <h2 class="section-title">What you get with every order</h2>
+      <div class="grid assurance-grid">
+        {
+          assurances.map((item) => (
+            <div class="assurance">
+              <h3>{item.title}</h3>
+              <p>{item.body}</p>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  {
+    featured.length > 0 && (
+      <section class="section">
+        <div class="wrap">
+          <div class="section-head">
+            <h2 class="section-title">Frequently ordered</h2>
+            <a href="/products">All {products.length} products →</a>
+          </div>
+          <div class="grid product-grid">
+            {featured.map((product) => (
+              <ProductCard product={product} />
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <section class="section cta-section">
+    <div class="wrap cta-inner">
+      <h2>Ordering for an institution?</h2>
+      <p class="lede">
+        We supply universities, contract research organisations and private laboratories. Purchase
+        orders, bulk quantities and custom vial sizes are all handled through the same enquiry
+        route.
+      </p>
+      <a class="btn btn-primary" href="/contact">Talk to us</a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .hero {
+    padding-block: clamp(3.5rem, 2.2rem + 6vw, 8rem) clamp(3rem, 2rem + 4vw, 5.5rem);
+    border-bottom: 1px solid var(--line);
+    background:
+      radial-gradient(70ch 40ch at 12% -10%, var(--brass-soft), transparent 65%),
+      var(--paper);
+  }
+
+  .hero h1 {
+    margin-top: 1rem;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--brass-ink);
+  }
+
+  .hero .lede {
+    margin-top: 1.5rem;
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 2rem;
+  }
+
+  .hero-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem 3rem;
+    margin-top: clamp(2.5rem, 1.8rem + 3vw, 4.5rem);
+    padding-top: 1.75rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .hero-stats dt {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--ink-3);
+  }
+
+  .hero-stats dd {
+    font-family: var(--font-mono);
+    font-size: var(--step-1);
+    margin: 0.35rem 0 0;
+  }
+
+  .section-title {
+    font-size: var(--step-2);
+  }
+
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+  }
+
+  .section-head a {
+    font-size: var(--step--1);
+    color: var(--brass-ink);
+    text-decoration: none;
+  }
+
+  .section-head a:hover {
+    text-decoration: underline;
+  }
+
+  .assurance-section {
+    border-bottom: 1px solid var(--line);
+  }
+
+  .assurance-grid {
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    margin-top: 2.5rem;
+  }
+
+  .assurance h3 {
+    font-size: var(--step-1);
+    padding-top: 1rem;
+    border-top: 1px solid var(--line-strong);
+  }
+
+  .assurance p {
+    margin-top: 0.6rem;
+    color: var(--ink-2);
+    font-size: var(--step--1);
+  }
+
+  .product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+  }
+
+  .cta-section {
+    border-top: 1px solid var(--line);
+    background: var(--surface-2);
+  }
+
+  .cta-inner .lede {
+    margin-top: 1rem;
+  }
+
+  .cta-inner .btn {
+    margin-top: 1.75rem;
+  }
+</style>
