@@ -5,7 +5,7 @@
   "genuine_key": "18C09E865EC948A1",
   "entries": [
     {"label": "Global@localhost", "key_id": "EFC4B0EE281DE954", "uid": "Global@localhost", "valid_from": "2024-10-28", "status": "certified"},
-    {"label": "BuZz Spacedout", "key_id": "4D0C57505EC948A1", "uid": "satoshin@gmx.com", "valid_from": "2018-06-04", "status": "not certified"},
+    {"label": "BuZz Spacedout", "key_id": "4D0C57505EC948A1", "fingerprint": "FC2C11C02EBCB842D5892F7F4D0C57505EC948A1", "algorithm": "rsa1024", "uid": "satoshin@gmx.com", "valid_from": "2018-06-04", "status": "not certified", "note": "Short-ID-collision forgery confirmed by full fingerprint: only the last 32 bits (5EC948A1) match the genuine key DE4E...48A1; the other 32 hex chars differ. RSA-1024, claims 2018 (not backdated), private key n/a."},
     {"label": "Gavin Andresen", "key_id": "7588242FBE38D3A8", "uid": "gavinandresen@gmail.com", "valid_from": "2010-10-19", "valid_until": "2035-10", "status": "certified"},
     {"label": "Satoshi - BitCoin Email", "key_id": "4444995F9B0D536B", "uid": "satoshi@bitcoin.org", "valid_from": "2008-11-18", "status": "certified"},
     {"label": "Satoshi Nakamoto", "key_id": "7EEDA8009DFEF627", "uid": "", "valid_from": "2008-08-09", "status": "not certified"},
