@@ -1,0 +1,170 @@
+---
+import { site, nav, legalNav, RESEARCH_USE_NOTICE } from '../config';
+
+const year = new Date().getFullYear();
+const { company } = site;
+const hasAddress = company.address.line1 !== 'TBC';
+---
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-warning">
+      <p class="eyebrow">Important</p>
+      <p>{RESEARCH_USE_NOTICE}</p>
+      <p>
+        By purchasing from {site.name} you confirm that you are a qualified researcher or
+        institution, that you are aged {site.minimumAge} or over, and that you accept sole
+        responsibility for the safe and lawful handling, storage and disposal of these materials.
+      </p>
+    </div>
+
+    <div class="footer-cols">
+      <div class="footer-brand">
+        <p class="footer-wordmark">VIP&nbsp;Peptides</p>
+        <p class="footer-tag">{site.tagline}</p>
+      </div>
+
+      <nav aria-label="Footer">
+        <h2>Site</h2>
+        <ul>
+          {nav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
+        </ul>
+      </nav>
+
+      <nav aria-label="Legal">
+        <h2>Legal</h2>
+        <ul>
+          {legalNav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
+        </ul>
+      </nav>
+
+      <div>
+        <h2>Contact</h2>
+        <ul>
+          <li><a href={`mailto:${site.contact.email}`}>{site.contact.email}</a></li>
+          {site.contact.phone && <li><a href={`tel:${site.contact.phone.replace(/\s/g, '')}`}>{site.contact.phone}</a></li>}
+          <li class="footer-hours">{site.contact.hours}</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-base">
+      <p>&copy; {year} {company.legalName}. All rights reserved.</p>
+      <p class="footer-reg">
+        {
+          company.companyNumber !== 'TBC' && (
+            <span>Registered in England &amp; Wales no. {company.companyNumber}. </span>
+          )
+        }
+        {company.vatNumber !== 'TBC' && <span>VAT no. {company.vatNumber}. </span>}
+        {
+          hasAddress && (
+            <span>
+              {company.address.line1}, {company.address.city}, {company.address.postcode},{' '}
+              {company.address.country}.
+            </span>
+          )
+        }
+      </p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-top: auto;
+    border-top: 1px solid var(--line);
+    background: var(--surface-2);
+    padding-block: clamp(2.5rem, 1.8rem + 3vw, 4rem);
+    font-size: var(--step--1);
+  }
+
+  .footer-warning {
+    border: 1px solid var(--warning-line);
+    background: var(--warning-bg);
+    border-radius: var(--radius-lg);
+    padding: clamp(1.1rem, 0.8rem + 1.2vw, 1.75rem);
+    max-width: 90ch;
+  }
+
+  .footer-warning p + p {
+    margin-top: 0.7em;
+  }
+
+  .footer-warning .eyebrow {
+    margin-bottom: 0.5em;
+  }
+
+  .footer-cols {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 2rem;
+    margin-top: 3rem;
+  }
+
+  .footer-brand {
+    grid-column: span 2;
+    min-width: 0;
+  }
+
+  .footer-wordmark {
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+  }
+
+  .footer-tag {
+    color: var(--ink-2);
+    margin-top: 0.3em;
+    max-width: 28ch;
+  }
+
+  .site-footer h2 {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--ink-3);
+    margin-bottom: 1em;
+  }
+
+  .site-footer ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .site-footer li + li {
+    margin-top: 0.55em;
+  }
+
+  .site-footer a {
+    text-decoration: none;
+    color: var(--ink-2);
+  }
+
+  .site-footer a:hover {
+    color: var(--ink);
+    text-decoration: underline;
+  }
+
+  .footer-hours {
+    color: var(--ink-3);
+  }
+
+  .footer-base {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.5rem 2rem;
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--line);
+    color: var(--ink-3);
+  }
+
+  @media (max-width: 640px) {
+    .footer-brand {
+      grid-column: span 1;
+    }
+  }
+</style>

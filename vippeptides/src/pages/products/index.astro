@@ -1,0 +1,144 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import ProductCard from '../../components/ProductCard.astro';
+
+const products = (await getCollection('products')).sort((a, b) => a.data.order - b.data.order);
+const categories = ['All', ...new Set(products.map((p) => p.data.category))];
+---
+
+<Base
+  title="Products"
+  description="The full VIP Peptides catalogue. Research-grade peptides and laboratory accessories, each supplied with a batch certificate of analysis."
+>
+  <section class="page-head">
+    <div class="wrap">
+      <p class="eyebrow">Catalogue</p>
+      <h1>Products</h1>
+      <p class="lede">
+        {products.length} lines held in UK stock. Prices exclude VAT and shipping. Add items to an
+        enquiry and we will confirm availability, current batch and a delivered total.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="filters" role="group" aria-label="Filter by category">
+        {
+          categories.map((category, i) => (
+            <button
+              class="filter"
+              type="button"
+              data-filter={category}
+              aria-pressed={i === 0 ? 'true' : 'false'}
+            >
+              {category}
+            </button>
+          ))
+        }
+      </div>
+
+      <div class="grid product-grid" data-product-grid>
+        {
+          products.map((product) => (
+            <div data-category={product.data.category}>
+              <ProductCard product={product} />
+            </div>
+          ))
+        }
+      </div>
+
+      <p class="no-results" data-no-results hidden>No products in this category.</p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .page-head {
+    padding-block: clamp(2.5rem, 1.8rem + 3.5vw, 4.5rem) 0;
+  }
+
+  .page-head h1 {
+    font-size: var(--step-3);
+    margin-top: 0.6rem;
+  }
+
+  .page-head .lede {
+    margin-top: 1rem;
+  }
+
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .filter {
+    padding: 0.45em 1em;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    background: transparent;
+    font-size: var(--step--1);
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  }
+
+  .filter:hover {
+    border-color: var(--ink);
+  }
+
+  .filter[aria-pressed='true'] {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--paper);
+  }
+
+  .product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 265px), 1fr));
+    align-items: stretch;
+  }
+
+  .product-grid > div {
+    display: flex;
+  }
+
+  /* The class selector above outranks the UA rule for [hidden], so the
+     filter's hidden attribute needs restating here to take effect. */
+  .product-grid > div[hidden] {
+    display: none;
+  }
+
+  .product-grid > div > :global(*) {
+    width: 100%;
+  }
+
+  .no-results {
+    color: var(--ink-2);
+    padding-block: 3rem;
+    text-align: center;
+  }
+</style>
+
+<script>
+  const filters = document.querySelectorAll<HTMLButtonElement>('.filter');
+  const items = document.querySelectorAll<HTMLElement>('[data-product-grid] > [data-category]');
+  const empty = document.querySelector<HTMLElement>('[data-no-results]');
+
+  filters.forEach((button) => {
+    button.addEventListener('click', () => {
+      const selected = button.dataset.filter;
+      filters.forEach((b) => b.setAttribute('aria-pressed', String(b === button)));
+
+      let shown = 0;
+      items.forEach((item) => {
+        const match = selected === 'All' || item.dataset.category === selected;
+        item.hidden = !match;
+        if (match) shown++;
+      });
+
+      if (empty) empty.hidden = shown > 0;
+    });
+  });
+</script>

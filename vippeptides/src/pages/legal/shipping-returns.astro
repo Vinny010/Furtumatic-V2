@@ -1,0 +1,103 @@
+---
+/*
+ * TEMPLATE DOCUMENT — must be reviewed by a UK solicitor before launch.
+ * See README.md ("Before you go live") for the full list of legal follow-ups.
+ */
+import Legal from '../../layouts/Legal.astro';
+import { site } from '../../config';
+---
+
+<Legal
+  title="Shipping & Returns"
+  description="Dispatch times, delivery, and the circumstances in which VIP Peptides accepts returns."
+  updated="August 2026"
+>
+  <p class="lede">
+    We dispatch within the United Kingdom on a tracked service. Because we supply temperature-
+    sensitive research materials, our returns policy is necessarily narrower than for ordinary
+    goods — the detail is below.
+  </p>
+
+  <h2>1. Dispatch</h2>
+  <p>
+    Orders confirmed and paid before 2pm on a working day are dispatched the same day. Orders placed
+    after that, or at a weekend or bank holiday, are dispatched on the next working day.
+  </p>
+  <p>
+    We dispatch to addresses in the United Kingdom only. We do not currently ship internationally.
+  </p>
+
+  <h2>2. Delivery</h2>
+  <p>
+    We use a tracked service and send you the tracking reference on dispatch. Estimated transit is
+    one to two working days, but this is an estimate and not a guarantee.
+  </p>
+  <p>
+    Deliveries require a signature. If nobody is available, the carrier will leave a card and
+    attempt redelivery. Products left unclaimed and returned to us may incur a redelivery charge.
+  </p>
+
+  <h2>3. Packaging</h2>
+  <p>
+    Lyophilised material is stable at ambient temperature for the duration of normal UK transit, and
+    ships in insulated packaging as standard. If a shipment requires additional cold-chain
+    provision, we will tell you before dispatch and quote for it separately.
+  </p>
+  <p>
+    Please refrigerate or freeze the vials promptly on arrival, in line with the storage conditions
+    on the product page.
+  </p>
+
+  <h2>4. Damaged or incorrect goods</h2>
+  <p>
+    Inspect your order on arrival. If any item arrives damaged, with a broken seal, or is not what
+    you ordered, email <a href={`mailto:${site.contact.email}`}>{site.contact.email}</a> within
+    <strong>seven days</strong> of delivery, with photographs of the packaging and the vials.
+  </p>
+  <p>
+    Where we are satisfied that the fault is ours or the carrier's, we will replace the item at our
+    cost or issue a full refund, whichever you prefer. Do not return anything before contacting us.
+  </p>
+
+  <h2>5. Off-specification material</h2>
+  <p>
+    If independent analysis shows that material you received does not conform to the certificate of
+    analysis supplied with it, we will replace or refund it in full, and cover the reasonable cost of
+    the analysis on production of an invoice. Contact us with the analytical report and the batch
+    code from the vial.
+  </p>
+
+  <h2>6. Returns we cannot accept</h2>
+  <p>
+    We cannot accept returns of products that have been opened, unsealed, reconstituted, or stored
+    outside the stated conditions. Once a vial has left our custody we can no longer verify its
+    cold-chain integrity, and reselling it would compromise the guarantees we give every other
+    customer.
+  </p>
+  <p>
+    Unopened, undamaged vials in their original sealed packaging may be returned within 14 days of
+    delivery at our discretion, provided you contact us first. Return carriage is at your cost, and
+    a restocking charge may apply.
+  </p>
+
+  <h2>7. Consumer cancellation rights</h2>
+  <p>
+    We supply to researchers, institutions and businesses rather than consumers, so the Consumer
+    Contracts (Information, Cancellation and Additional Charges) Regulations 2013 will not usually
+    apply. Where they do apply to a particular purchase, your statutory cancellation rights are
+    unaffected by anything in this policy, subject to the exemptions those regulations provide for
+    sealed goods unsuitable for return once unsealed for health-protection or hygiene reasons.
+  </p>
+
+  <h2>8. Refunds</h2>
+  <p>
+    Approved refunds are made to the original payment method within 14 days of us agreeing the
+    refund or receiving the returned goods, whichever is later.
+  </p>
+
+  <h2>9. Contact</h2>
+  <p>
+    Any question about a delivery or a return:
+    <a href={`mailto:${site.contact.email}`}>{site.contact.email}</a>, {site.contact.hours.toLowerCase()}.
+  </p>
+</Legal>

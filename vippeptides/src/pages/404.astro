@@ -1,0 +1,41 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="Page not found" noindex>
+  <section class="wrap notfound">
+    <p class="eyebrow">Error 404</p>
+    <h1>That page does not exist</h1>
+    <p class="lede">
+      The link may be out of date, or the product may have been discontinued. The catalogue is the
+      best place to pick things up again.
+    </p>
+    <div class="actions">
+      <a class="btn btn-primary" href="/products">Browse products</a>
+      <a class="btn btn-secondary" href="/">Back to home</a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .notfound {
+    padding-block: clamp(4rem, 3rem + 6vw, 9rem);
+    max-width: var(--wrap-narrow);
+  }
+
+  .notfound h1 {
+    font-size: var(--step-3);
+    margin-top: 0.6rem;
+  }
+
+  .notfound .lede {
+    margin-top: 1rem;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 2rem;
+  }
+</style>

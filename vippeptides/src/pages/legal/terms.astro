@@ -1,0 +1,121 @@
+---
+/*
+ * TEMPLATE DOCUMENT — must be reviewed by a UK solicitor before launch.
+ * See README.md ("Before you go live") for the full list of legal follow-ups.
+ */
+import Legal from '../../layouts/Legal.astro';
+import { site } from '../../config';
+---
+
+<Legal
+  title="Terms & Conditions"
+  description={`The terms governing the supply of research materials by ${site.company.legalName}.`}
+  updated="August 2026"
+>
+  <p class="lede">
+    These terms govern the supply of products by {site.company.legalName} (&ldquo;we&rdquo;,
+    &ldquo;us&rdquo;) to you. Placing an order means you accept them, together with our
+    <a href="/legal/disclaimer">Research Use Disclaimer</a>, which forms part of these terms.
+  </p>
+
+  <h2>1. About us</h2>
+  <p>
+    {site.company.legalName} is a company registered in England and Wales
+    {site.company.companyNumber !== 'TBC' && ` under number ${site.company.companyNumber}`}. You can
+    reach us at <a href={`mailto:${site.contact.email}`}>{site.contact.email}</a>.
+  </p>
+
+  <h2>2. Eligibility</h2>
+  <p>
+    You may only order from us if you are aged {site.minimumAge} or over and are acting as, or on
+    behalf of, a qualified researcher, laboratory, institution or business. We do not knowingly
+    supply consumers purchasing for personal use, and we reserve the right to request evidence of
+    research capacity before accepting an order.
+  </p>
+
+  <h2>3. Orders and enquiries</h2>
+  <p>
+    Our website is a catalogue, not an automated checkout. Submitting an enquiry is an invitation to
+    treat and does not create a contract. A contract is formed only when we confirm your order in
+    writing and, where payment is due in advance, receive cleared funds.
+  </p>
+  <p>
+    We may decline any enquiry at our discretion. Product availability is not guaranteed until
+    confirmed, and batch details may change between enquiry and confirmation.
+  </p>
+
+  <h2>4. Prices and payment</h2>
+  <p>
+    Prices shown on the website exclude VAT and shipping, and are subject to change without notice.
+    The price that applies is the one quoted in our written order confirmation.
+  </p>
+  <p>
+    Payment is due in full before dispatch unless we have agreed account terms with you in writing.
+    Where account terms apply, invoices are payable within 30 days of the invoice date, and we
+    reserve the right to charge statutory interest on overdue sums under the Late Payment of
+    Commercial Debts (Interest) Act 1998.
+  </p>
+
+  <h2>5. Delivery</h2>
+  <p>
+    We dispatch within the United Kingdom only. Delivery estimates are estimates, not guarantees,
+    and we are not liable for delays caused by carriers or events outside our reasonable control.
+    Risk in the products passes to you on delivery; title passes on receipt of payment in full.
+  </p>
+  <p>See our <a href="/legal/shipping-returns">Shipping &amp; Returns</a> page for the detail.</p>
+
+  <h2>6. Specification and certificates</h2>
+  <p>
+    Each batch is supplied with a certificate of analysis stating its purity and identity as
+    determined by an independent laboratory. Our obligation is to supply material conforming to the
+    specification on that certificate. Where the certificate for the batch you receive differs from
+    a specification quoted on the website, the certificate governs.
+  </p>
+
+  <h2>7. Your obligations</h2>
+  <p>
+    The obligations set out in our <a href="/legal/disclaimer">Research Use Disclaimer</a> —
+    including the restriction to in-vitro laboratory research and the prohibition on administration
+    to humans or animals — are incorporated into these terms and are conditions of supply. Breach of
+    them entitles us to terminate supply immediately.
+  </p>
+
+  <h2>8. Liability</h2>
+  <p>
+    We are not liable to you for any loss of profit, loss of business, business interruption, loss
+    of data, or any indirect or consequential loss. Our total liability arising from or in
+    connection with any order is limited to the price paid for the products giving rise to the
+    claim.
+  </p>
+  <p>
+    Nothing in these terms excludes or limits our liability for death or personal injury caused by
+    our negligence, for fraud or fraudulent misrepresentation, for breach of the terms implied by
+    section 12 of the Sale of Goods Act 1979, or for any other liability that cannot lawfully be
+    excluded or limited.
+  </p>
+
+  <h2>9. Force majeure</h2>
+  <p>
+    We are not liable for any failure or delay in performing our obligations where that failure or
+    delay results from events outside our reasonable control.
+  </p>
+
+  <h2>10. General</h2>
+  <p>
+    If any provision of these terms is found to be unenforceable, the remaining provisions continue
+    in force. Our failure to enforce any right is not a waiver of it. No third party has any right
+    to enforce these terms under the Contracts (Rights of Third Parties) Act 1999.
+  </p>
+
+  <h2>11. Governing law</h2>
+  <p>
+    These terms and any dispute arising out of them are governed by the laws of England and Wales,
+    and are subject to the exclusive jurisdiction of the courts of England and Wales.
+  </p>
+
+  <h2>12. Changes</h2>
+  <p>
+    We may amend these terms from time to time. The version in force is the one published on this
+    page at the date your order is confirmed.
+  </p>
+</Legal>

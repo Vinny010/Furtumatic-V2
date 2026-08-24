@@ -1,0 +1,166 @@
+---
+import Base from '../layouts/Base.astro';
+import { site } from '../config';
+
+const faqs = [
+  {
+    q: 'What does "research use only" actually mean?',
+    a: 'It means these materials are supplied for in-vitro laboratory work and nothing else. They are not medicines, they hold no marketing authorisation, and they have not been assessed by any regulator for use in humans or animals. Buying from us means confirming you understand and accept that.',
+  },
+  {
+    q: 'Can you advise on dosing or how to use a product?',
+    a: 'No. We do not provide dosing information, administration protocols, or any guidance on use in humans or animals, and we will decline if asked. We can help with identity, purity, reconstitution for laboratory work, storage and stability — the properties of the material itself.',
+  },
+  {
+    q: 'Can I see the certificate of analysis before I order?',
+    a: 'Yes, and we would rather you did. Ask for the COA for the batch currently in stock with your enquiry and we will send it before you commit to anything.',
+  },
+  {
+    q: 'Why do I send an enquiry instead of checking out?',
+    a: 'Because availability and batch change, and most of our customers want the current COA, a delivered total including VAT and shipping, or a purchase order raised before they commit. Sending an enquiry gets you all of that in one reply, usually the same working day.',
+  },
+  {
+    q: 'How should I store the vials?',
+    a: 'Lyophilised powder keeps best sealed at -20°C, protected from light. Once reconstituted, keep the solution refrigerated and use it promptly. Aliquoting a stock solution avoids repeated freeze-thaw cycles on one vial.',
+  },
+  {
+    q: 'What do I reconstitute with?',
+    a: 'Bacteriostatic water is the usual choice for a vial that will be sampled more than once, since the benzyl alcohol preservative allows repeated puncture over a limited period. Sterile water is fine for single-use preparation. We stock both alongside empty sterile vials for aliquoting.',
+  },
+  {
+    q: 'Do you ship outside the UK?',
+    a: 'Not currently. We dispatch within the United Kingdom only. Import rules for research chemicals vary considerably between countries and we would rather not put a customer in a difficult position.',
+  },
+  {
+    q: 'Do you supply institutions on account?',
+    a: 'Yes. We work with universities, contract research organisations and private laboratories, and we can raise invoices against a purchase order. Mention it in your enquiry and we will set it up.',
+  },
+  {
+    q: 'What if something arrives damaged or off-specification?',
+    a: 'Tell us within seven days and we will replace it or refund it. Damage in transit, a vial that does not match its certificate, or a broken seal all qualify — see our shipping and returns page for the detail.',
+  },
+];
+---
+
+<Base
+  title="FAQ"
+  description="Common questions about ordering research peptides from VIP Peptides: certificates of analysis, storage, reconstitution, shipping and institutional accounts."
+>
+  <section class="page-head">
+    <div class="wrap">
+      <p class="eyebrow">Questions</p>
+      <h1>Frequently asked</h1>
+      <p class="lede">
+        If the answer you need is not here, email
+        <a href={`mailto:${site.contact.email}`}>{site.contact.email}</a> and ask.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap faq-list">
+      {
+        faqs.map((item) => (
+          <details class="faq">
+            <summary>
+              <span>{item.q}</span>
+              <span class="faq-icon" aria-hidden="true"></span>
+            </summary>
+            <p>{item.a}</p>
+          </details>
+        ))
+      }
+    </div>
+  </section>
+</Base>
+
+<style>
+  .page-head {
+    padding-block: clamp(2.5rem, 1.8rem + 3.5vw, 4.5rem) 0;
+  }
+
+  .page-head h1 {
+    font-size: var(--step-3);
+    margin-top: 0.6rem;
+  }
+
+  .page-head .lede {
+    margin-top: 1rem;
+  }
+
+  .page-head a {
+    color: var(--brass-ink);
+  }
+
+  .faq-list {
+    max-width: 78ch;
+  }
+
+  .faq {
+    border-top: 1px solid var(--line);
+  }
+
+  .faq:last-child {
+    border-bottom: 1px solid var(--line);
+  }
+
+  summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding-block: 1.4rem;
+    cursor: pointer;
+    font-size: var(--step-1);
+    font-family: var(--font-display);
+    line-height: 1.25;
+    list-style: none;
+  }
+
+  summary::-webkit-details-marker {
+    display: none;
+  }
+
+  summary:hover {
+    color: var(--brass-ink);
+  }
+
+  .faq-icon {
+    position: relative;
+    width: 14px;
+    height: 14px;
+    flex: none;
+  }
+
+  .faq-icon::before,
+  .faq-icon::after {
+    content: '';
+    position: absolute;
+    background: currentColor;
+    transition: transform 0.2s ease;
+  }
+
+  .faq-icon::before {
+    top: 6px;
+    left: 0;
+    width: 14px;
+    height: 1.5px;
+  }
+
+  .faq-icon::after {
+    top: 0;
+    left: 6px;
+    width: 1.5px;
+    height: 14px;
+  }
+
+  .faq[open] .faq-icon::after {
+    transform: scaleY(0);
+  }
+
+  .faq p {
+    padding-bottom: 1.6rem;
+    max-width: var(--measure);
+    color: var(--ink-2);
+  }
+</style>

@@ -1,0 +1,260 @@
+---
+import { getCollection, render } from 'astro:content';
+import type { GetStaticPaths } from 'astro';
+import type { CollectionEntry } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import SpecTable from '../../components/SpecTable.astro';
+import ProductCard from '../../components/ProductCard.astro';
+import { RESEARCH_USE_NOTICE } from '../../config';
+
+interface Props {
+  product: CollectionEntry<'products'>;
+}
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const products = await getCollection('products');
+  return products.map((product) => ({
+    params: { slug: product.id },
+    props: { product },
+  }));
+};
+
+const { product } = Astro.props;
+const d = product.data;
+const { Content } = await render(product);
+
+const related = (await getCollection('products'))
+  .filter((p) => p.id !== product.id && p.data.category === d.category)
+  .sort((a, b) => a.data.order - b.data.order)
+  .slice(0, 3);
+
+const price = new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(d.price);
+
+const specs = [
+  { label: 'CAS number', value: d.cas },
+  { label: 'Molecular formula', value: d.molecularFormula },
+  { label: 'Molecular weight', value: d.molecularWeight },
+  { label: 'Sequence', value: d.sequence },
+  { label: 'Quantity per vial', value: d.vialSize },
+  { label: 'Purity', value: d.purity },
+  { label: 'Physical form', value: d.form },
+  { label: 'Storage', value: d.storage },
+  { label: 'SKU', value: d.sku },
+];
+---
+
+<Base title={d.name} description={`${d.name} — ${d.summary} ${d.vialSize}, ${d.purity} purity. Supplied for laboratory research use only.`}>
+  <div class="wrap">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a href="/products">Products</a>
+      <span aria-hidden="true">/</span>
+      <span>{d.name}</span>
+    </nav>
+  </div>
+
+  <article class="wrap product-layout">
+    <div class="product-main">
+      <span class="tag">{d.category}</span>
+      <h1>{d.name}</h1>
+      <p class="lede">{d.summary}</p>
+
+      <div class="prose product-body">
+        <Content />
+      </div>
+
+      <h2 class="spec-title">Specification</h2>
+      <SpecTable rows={specs} />
+
+      <p class="coa-note">
+        The certificate of analysis is batch-specific. Ask for the current batch COA with your
+        enquiry and we will send it before you commit to an order.
+      </p>
+    </div>
+
+    <aside class="product-aside">
+      <div class="buy-box card">
+        <p class="buy-price">{price}</p>
+        <p class="buy-meta">{d.vialSize} vial · excludes VAT and shipping</p>
+
+        <p class={`stock ${d.inStock ? 'in' : 'out'}`}>
+          <span class="stock-dot" aria-hidden="true"></span>
+          {d.inStock ? 'In stock, UK dispatch' : 'Currently out of stock'}
+        </p>
+
+        <button
+          class="btn btn-primary buy-btn"
+          type="button"
+          data-add-to-enquiry
+          data-sku={d.sku}
+          data-name={d.name}
+          data-vial-size={d.vialSize}
+          data-price={d.price}
+          disabled={!d.inStock}
+        >
+          {d.inStock ? 'Add to enquiry' : 'Unavailable'}
+        </button>
+
+        <a class="btn btn-secondary buy-btn" href="/enquiry">View enquiry list</a>
+
+        <p class="buy-note">{RESEARCH_USE_NOTICE}</p>
+      </div>
+    </aside>
+  </article>
+
+  {
+    related.length > 0 && (
+      <section class="section related">
+        <div class="wrap">
+          <h2 class="spec-title">Also in {d.category}</h2>
+          <div class="grid related-grid">
+            {related.map((item) => (
+              <ProductCard product={item} />
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+</Base>
+
+<style>
+  .crumbs {
+    display: flex;
+    gap: 0.5rem;
+    padding-top: 2rem;
+    font-size: var(--step--1);
+    color: var(--ink-3);
+  }
+
+  .crumbs a {
+    color: var(--ink-2);
+    text-decoration: none;
+  }
+
+  .crumbs a:hover {
+    text-decoration: underline;
+  }
+
+  .product-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 21rem);
+    gap: clamp(2rem, 1rem + 4vw, 4rem);
+    align-items: start;
+    padding-block: 2rem clamp(3rem, 2rem + 4vw, 5rem);
+  }
+
+  .product-main h1 {
+    font-size: var(--step-3);
+    margin-top: 0.8rem;
+  }
+
+  .product-main .lede {
+    margin-top: 0.8rem;
+  }
+
+  .product-body {
+    margin-top: 2rem;
+  }
+
+  .spec-title {
+    font-size: var(--step-2);
+    margin-top: 2.75rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .coa-note {
+    margin-top: 1.25rem;
+    font-size: var(--step--1);
+    color: var(--ink-2);
+    max-width: var(--measure);
+  }
+
+  .product-aside {
+    position: sticky;
+    top: 6rem;
+  }
+
+  .buy-box {
+    padding: clamp(1.25rem, 1rem + 1vw, 1.75rem);
+  }
+
+  .buy-price {
+    font-family: var(--font-mono);
+    font-size: var(--step-3);
+    line-height: 1;
+  }
+
+  .buy-meta {
+    color: var(--ink-3);
+    font-size: var(--step--1);
+    margin-top: 0.5rem;
+  }
+
+  .stock {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1.25rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--line);
+    font-size: var(--step--1);
+  }
+
+  .stock-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+    flex: none;
+  }
+
+  .stock.in {
+    color: var(--positive);
+  }
+
+  .stock.out {
+    color: var(--ink-3);
+  }
+
+  .buy-btn {
+    width: 100%;
+    margin-top: 0.75rem;
+  }
+
+  .buy-btn.is-added {
+    background: var(--positive);
+  }
+
+  .buy-note {
+    margin-top: 1.25rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--line);
+    font-size: 0.72rem;
+    line-height: 1.55;
+    color: var(--ink-3);
+  }
+
+  .related {
+    border-top: 1px solid var(--line);
+    background: var(--surface-2);
+  }
+
+  .related .spec-title {
+    margin-top: 0;
+  }
+
+  .related-grid {
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+  }
+
+  @media (max-width: 860px) {
+    .product-layout {
+      grid-template-columns: 1fr;
+    }
+
+    .product-aside {
+      position: static;
+      order: -1;
+    }
+  }
+</style>
