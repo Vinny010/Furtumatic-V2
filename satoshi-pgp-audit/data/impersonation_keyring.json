@@ -1,0 +1,20 @@
+{
+  "$comment": "A Kleopatra keyring of Satoshi-impersonation keys, transcribed from a screenshot. UNTRUSTED, image-transcribed. Key ID column shows the 64-bit long key id. Includes the ONE genuine key (18C09E865EC948A1, DSA, 2008-10-30) surrounded by forgeries: short-id collisions on 5EC948A1 and keys whose UIDs are free-text impersonations. Used by spa.analysis.keyid_collision. 'certified' here is a LOCAL trust marking, not third-party proof.",
+  "source": "user-supplied Kleopatra screenshot",
+  "watched_short_ids": ["5EC948A1"],
+  "genuine_key": "18C09E865EC948A1",
+  "entries": [
+    {"label": "Global@localhost", "key_id": "EFC4B0EE281DE954", "uid": "Global@localhost", "valid_from": "2024-10-28", "status": "certified"},
+    {"label": "BuZz Spacedout", "key_id": "4D0C57505EC948A1", "uid": "satoshin@gmx.com", "valid_from": "2018-06-04", "status": "not certified"},
+    {"label": "Gavin Andresen", "key_id": "7588242FBE38D3A8", "uid": "gavinandresen@gmail.com", "valid_from": "2010-10-19", "valid_until": "2035-10", "status": "certified"},
+    {"label": "Satoshi - BitCoin Email", "key_id": "4444995F9B0D536B", "uid": "satoshi@bitcoin.org", "valid_from": "2008-11-18", "status": "certified"},
+    {"label": "Satoshi Nakamoto", "key_id": "7EEDA8009DFEF627", "uid": "", "valid_from": "2008-08-09", "status": "not certified"},
+    {"label": "Satoshi Nakamoto", "key_id": "8A5D521E0125BB61", "uid": "test@satoshi.example", "valid_from": "2025-05-26", "status": "certified"},
+    {"label": "Satoshi Nakamoto (GENUINE)", "key_id": "18C09E865EC948A1", "uid": "satoshin@gmx.com", "valid_from": "2008-10-30", "status": "certified"},
+    {"label": "Satoshi Nakamoto (1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa)", "key_id": "2B9F09E32746D9DA", "uid": "satoshin@gmx.com", "valid_from": "2025-06-01", "status": "certified"},
+    {"label": "Satoshi Nakamoto (M is the real Satoshi)", "key_id": "311EE8EAD15AB500", "uid": "satoshin@gmx.com", "valid_from": "2008-10-31", "status": "certified", "note": "key_id last bytes truncated in screenshot (D15AB5..)"},
+    {"label": "Satoshi Nakamoto (M V)", "key_id": "559266756909E2CF", "uid": "satoshin@gmx.com", "valid_from": "2008-10-31", "status": "certified"},
+    {"label": "Satoshi Nakamoto (This is a demonstration key to prove forging is possible...M)", "key_id": "AE93FF14EB1876DC", "uid": "satoshin@gmx.com", "valid_from": "2025-06-01", "status": "certified"},
+    {"label": "Satoshi Nakamoto (Updated UID / 10JUN2018)", "key_id": "EE1E20575EC948A1", "uid": "satoshin77@protonmail.com", "valid_from": "2008-10-30", "status": "not certified"}
+  ]
+}
