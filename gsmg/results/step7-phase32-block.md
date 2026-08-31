@@ -57,3 +57,51 @@ already held locally. Both Beaufort and Vigenère orientations, multiple restart
 This is the standard attack for a polyalphabetic cipher with an unknown alphabet,
 and 1,539 characters at period 15 gives roughly 103 characters per column — ample
 for column-wise frequency solving once the permutation is right.
+
+## Period confirmed twice, independently
+
+Kasiski examination backs the index-of-coincidence result. Of 127 repeated
+trigrams giving 184 inter-repeat distances, the factor 15 divides 117 of them —
+and the other frequent factors (3, 5, 30) are its divisors and multiple:
+
+```
+factor 3 -> 145    factor 5 -> 124    factor 15 -> 117    factor 30 -> 58
+```
+
+Period 15 is not in doubt.
+
+## The alphabet really is permuted
+
+Mutual index of coincidence between column 0 and each other column, scanning all
+26 relative shifts, produces a sharp peak in only **4 of 15** columns (ratio of
+best to second-best above 1.15). If the symbol-to-letter table were byte order,
+every column would peak sharply. It does not, so the table is a non-order-
+preserving permutation.
+
+## The plaintext is not English
+
+This is the useful negative. Calibrating the trigram scorer on 1,539-letter
+samples:
+
+| text | score per letter |
+|---|---|
+| real English (the phase 3 plaintext) | **-2.722** |
+| uniform random letters | **-3.980** |
+| best the annealer reaches, 25+ restarts, both orientations | **-3.774** |
+
+The scorer separates English from random by 1.258 per letter, so it is perfectly
+capable of recognising English at this length. The search plateaus at 0.206 above
+random — about 16% of the way — and independent restarts with completely different
+keys and permutations converge to the same plateau (-5809, -5808, -5808, -5790).
+That is the signature of no English signal to find, not of a search that needs
+more time.
+
+**Conclusion: this block is a period-15 polyalphabetic cipher over a plaintext that
+is not English text.** Its plaintext is most likely a further encoded layer —
+another symbol alphabet, base64, or digits — consistent with the puzzle's own claim
+of stacked ciphers.
+
+This matters for anyone continuing: attacking this block with an English-language
+solver cannot work, and the published description of a "Beaufort-decoded speech"
+does not apply to this object. The readable Architect speech is already in
+cleartext at the top of the phase 3.2 plaintext; it was never inside this block.
