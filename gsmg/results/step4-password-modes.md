@@ -62,9 +62,46 @@ variant A   4,149,522 candidates   24,897,132 trials   98,095 survivors   0 prin
 variant B   4,149,522 candidates   24,897,132 trials   97,301 survivors   0 printable
 ```
 
-Subset-XOR space (2^24) against both variants: see the sweep log; the run is
-recorded in this file's companion commit.
+Subset-XOR space, all 2^24 subsets of the 24-token page vocabulary, both variants:
 
-Negative so far. What it buys is that the password *form* is no longer an
+```
+variant A  16,777,215 candidates  134,217,720 trials  525,451 survivors  0 printable  (119 s)
+variant B  16,777,215 candidates  134,217,720 trials  527,084 survivors  0 printable  (117 s)
+```
+
+Negative. What it buys is that the password *form* is no longer an
 untested assumption — all four plausible forms are now covered, including the only
 one the page demonstrates.
+
+## Running total across all sweeps
+
+```
+step 1   documentation prose                       3,065,615 candidates
+step 2   live-page material                          772,842
+step 2b  both corpora vs variant B                 3,838,457
+step 3   all 9! Bifid outputs x 2 blobs              725,760
+step 3b  256-symbol bit masks (keys + passwords)       2,044
+step 4   full corpus x 4 password modes x 2 blobs  49,794,264 trials
+step 4b  2^24 subset XOR x 4 modes x 2 blobs      268,435,440 trials
+                                                  --------------------
+                                                  ~330 million trials
+                                                  0 printable plaintexts
+```
+
+## What is now retired rather than assumed
+
+- **blob reconstruction** — two structurally valid variants exist; both swept
+- **password form** — four forms covered, including the only one the page
+  demonstrates
+- **XOR construction** — the entire subset space enumerated, with the published
+  Dualite key as a positive control
+
+## What remains the binding constraint
+
+The vocabulary. Every sweep is only as good as the token list feeding it, and this
+one is built from the final page plus community documentation. The Dualite key
+required `secondanswer` and `yourlastcommand` — tokens that come from stages before
+SalPhaseIon. Captures of the **Architect Choice** and **follow the white rabbit**
+pages would replace a reconstructed vocabulary with the real one.
+`lastwordsbeforearchichoice` is a literal instruction pointing at text on a page not
+held here.
