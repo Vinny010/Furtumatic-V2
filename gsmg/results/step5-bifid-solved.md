@@ -52,19 +52,31 @@ RMLSALNQHQGXGFUEAATNGELELMKDBAMRMCMSGBMTLMDMMPSNSYNSBBNNCUECGMEUNELLAPPMXXRGBMNR
 CWAHTQPFHGXPL
 ```
 
-## An object the write-up does not mention
+## The even-parity stream is an artifact, not an object
 
-Splitting the Bifid plaintext by parity gives two streams. The published account
-discusses only the odd one. The **even** stream is 285 symbols over exactly **four**
-letters — `B`, `C`, `D`, `E` — which is 2 bits per symbol, 570 bits:
+An earlier version of this file called the even-parity stream "an object the
+write-up does not mention" and logged it as an untouched lead. That was wrong,
+and the reason is worth recording.
+
+The 9 ciphertext letters `a-i` occupy only **rows 0 and 1** of the 5x5 square:
 
 ```
-BCEDEECEDBCDBCDDBCCCCDCBEBDCDBCDCDCCECDCEBCDCCCEDECEDEDDCBCBBEBBEEEDBCBBCEBEEBBED
-DDECCECCCCCBDCCCBEECEECCBBEEEDEDBCDBDECBEBBEDCBCEBEBBCECCCEDEDDDCCEEBECCCDBDDDECC
-DCBCCCDBBECEEEEDDDECBCDDBECCEEDCEDCDEEDEDEBCEBECCDECCCCDCCDDBCBBDBDBDEECEBEBCBCCE
-DCBCCDCEDBDEBBCCCDDDDCCDDDEDEDBDCCDEDDDDCE
+   D B I F H        A=(1,3)  B=(0,1)  C=(1,0)  D=(0,0)  E=(1,1)
+   C E G A K        F=(0,3)  G=(1,2)  H=(0,4)  I=(0,2)
+   L M N O P
+   Q R S T U        rows used: {0,1}      cols used: {0,1,2,3,4}
+   V W X Y Z
 ```
 
-A 4-letter alphabet is a strong signal of deliberate encoding — base 4, or two bits
-per symbol — and it is a separate object of the same size as the one everyone has
-been attacking. It is recorded here as an untouched lead.
+Bifid decryption builds `S = r0,c0,r1,c1,...` and reads
+`plain[i] = square[S[i]][S[570+i]]`. Since 570 is even, for **even** `i` both
+`S[i]` and `S[570+i]` are *row* values, which can only be 0 or 1. The four
+reachable cells are (0,0)=D, (0,1)=B, (1,0)=C, (1,1)=E — so the even stream is
+*forced* to `{B,C,D,E}` by the ciphertext alphabet. It carries no information.
+
+For **odd** `i` both are *column* values in 0..4, so all 25 letters are reachable.
+That is why the payload is the odd-position stream, and why the write-ups take it.
+
+Treating the even stream as data was a false lead. Read as 2 bits per symbol under
+all 24 letter-to-value assignments, both directions, it yields ~46% printable bytes
+— indistinguishable from random, exactly as this analysis predicts.
