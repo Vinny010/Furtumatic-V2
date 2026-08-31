@@ -1,0 +1,21 @@
+{
+  "$comment": "Solved Bitcoin-Puzzle private keys, as {puzzle_number: hex_key}. Used by spa.analysis.puzzle_pattern to test whether solved keys cluster (a 'hot zone') or are uniform (no exploitable pattern). Only the low, universally-published, trivially-verifiable keys are seeded here; for a meaningful uniformity test PASTE THE FULL solved list (through the latest solve) from privatekeys.pw. The analyser verifies each key falls inside its own [2^(n-1), 2^n) range, so a transcription error is caught, not silently averaged in.",
+  "source": "privatekeys.pw/puzzles/bitcoin-puzzle-tx (paste the full list here)",
+  "solved": {
+    "1": "1",
+    "2": "3",
+    "3": "7",
+    "4": "8",
+    "5": "15",
+    "6": "31",
+    "7": "4c",
+    "8": "e0",
+    "9": "1d3",
+    "10": "202",
+    "11": "483",
+    "12": "a7b",
+    "13": "1460",
+    "14": "2930",
+    "15": "68f3"
+  }
+}
