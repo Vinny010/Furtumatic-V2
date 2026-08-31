@@ -172,3 +172,59 @@ a billion-candidate sweep — is right, and its instinct to exploit an indexing
 disagreement is the correct shape of move. But the disagreement it identified does
 not exist: the pixel data is unambiguous, both candidate cells are white, and the
 prime is 103, not 104.
+
+---
+
+# Third pass — index-as-stride
+
+The follow-up correctly noted that using 42 / 104 / 163 as *scissors* (split-at-n)
+is a different operator from using them as *index functions* (stride, modulus), and
+that the latter was untried. Done.
+
+## Method
+
+Every recovered object — `dbbi` (91), `faed` (570), the 1075-token stream, the Bifid
+plaintext (570), the 256-symbol object, and the 103-char Dualite secondary — read as:
+
+- `src[off::stride]` for strides 2-17, 19, 23, 29, 31, 37, 41, 42, 43, 103, 104, 163,
+  at offsets 0, 7, and 42/103/163 reduced mod the object length
+- residue classes `src[i] for i % p == r`, for p in the primes to 43 and
+  r in {0, 42 mod p, 104 mod p, 163 mod p}
+
+Each resulting stream was scored automatically against the English trigram model so
+nothing readable could be missed by eye.
+
+## Result — negative
+
+```
+best score : -2.315/char   dbbi91[42::9] = "ffcebe"
+```
+
+That looks English-adjacent only because it is six characters long, where
+per-character scoring is unstable. The top twenty are all 5-14 characters, none are
+words, and two caveats apply:
+
+1. **Short-string bias.** A 5-9 character stream over a 9-letter alphabet can score
+   near English by chance. Length must be held constant before scores are compared.
+2. **Scorer contamination.** The trigram model was built from text that includes the
+   puzzle's own a-i streams, so it mildly rewards a-i sequences. Any future scoring
+   of a-i material needs a model trained without them.
+
+The only longer high scorer, `bifid570[0::12]`, is the `BCDE` even-parity stream
+already shown to be a structural artifact of the ciphertext alphabet, not data.
+
+Oracle: 2,558 candidates x 3 blobs x 8 modes = **61,392 trials, 0 printable**.
+
+## What this closes
+
+42, 104 and 163 as stride or modulus generators over any recovered object do not
+emit `yellowblueprimes`, `yinyang`, or any English. Combined with the previous pass,
+these numbers are now exhausted as both scissors and index functions.
+
+## Standing
+
+Three passes of increasingly specific, well-motivated hypotheses have each closed
+negative. The numbers derived from the marked cell are spent. What has not been
+touched remains what it was: a second reading of the picture that produces `yinyang`
+as an *output*, which — if it depends on a page that was never archived — is missing
+data rather than an unsolved computation.
