@@ -86,3 +86,49 @@ unexplained deliberate signal found in this work.
 The unexplained signals are now: the `(254,254,254)` marker at cell (7,4), and the
 author's hint words `primes` and `yinyang`. Everything else on the published board
 is either reproduced here or shown false.
+
+## Full-image colour audit — the marker is the only one
+
+Every one of the 196 cells was checked for its exact modal RGB, to test whether the
+`(254,254,254)` cell is part of a broader hidden layer.
+
+```
+cells whose modal colour is NOT canonical : 1
+   cell(row 7, col 4)  modal RGB (254,254,254)  purity 100.0%
+```
+
+Every other cell is a flat, exact member of {black, white, blue, yellow}. The only
+cells with mixed pixels are (6,6)-(8,9), which is the rabbit's black line art drawn
+over white.
+
+So there is **no LSB or palette-based hidden layer**. There is exactly one
+deliberately marked cell, at full purity, off by one unit in each channel.
+
+That matches the author's 2023 hint — *"we wont give away the password its in front
+of your eyes but youre not seeing it"* — with unusual precision: a one-unit RGB
+offset is invisible to the eye but unambiguous in the data.
+
+## The marker as an index — tested
+
+Used the marker's several readings (spiral index 163, character 20, bit 3,
+row-major 102, row 7, col 4) as offsets into every major recovered object — the
+256-symbol object, the 570-character Bifid plaintext, the 1075-token stream, and the
+1327-byte Cosmic Duality plaintext — taking substrings of length 8, 16, 20, 32 and
+64, and every-nth-character readings, plus digests of all.
+
+```
+960 candidates x 3 blobs = 23,040 trials   0 printable
+```
+
+Negative.
+
+## What is genuinely unexplained, after this pass
+
+1. **The `(254,254,254)` marker at cell (7,4)** — deliberate, invisible, confirmed
+   at 100% purity, matching the author's own description of the hidden password
+   hint. Its meaning is unknown.
+2. **`primes` and `yinyang`** — two of the seven words in the author's 2023 hint
+   with no demonstrated function.
+
+Everything else published about this puzzle is either reproduced in this repository
+or shown to be false.
