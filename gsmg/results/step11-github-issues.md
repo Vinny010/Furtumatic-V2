@@ -84,3 +84,47 @@ The digits were the wrong place to look; the number is a code page, not a code.
 Nothing here opens the gate. What it does is close two structural holes in the
 search (repeated concatenations, author-hint vocabulary) and remove a claimed
 solution from the board with a decisive test rather than an opinion.
+
+## Issue #103 — the phase-2 table, independently verified
+
+Claims the Cosmic Duality decode's 4 trailing bytes resolve the phase-2 riddle
+table `# X 2 S H 4 Y 0 Q B 15 #`.
+
+**The premise is independently confirmed here.** `tools/dualite_chain.py`, written
+before this issue was read, ends its run with `trailing 4 bytes: fc0c1b02` — the
+same bytes. Read as signed 8-bit integers:
+
+```
+fc = -4    0c = 12    1b = 27    02 = 2
+=>  X = -4,  H = 12,  Y = 27,  Q = 2
+```
+
+With the previously known S = 32 (Klingon arithmetic, 2 + 5x6) and B = -16 (Intel
+model number), the table resolves to:
+
+```
+-4, 2, 32, 12, 4, 27, 0, 2, -16, 15
+```
+
+This genuinely links two stages treated as unrelated since 2019, and this repo's
+own output corroborates the input to it.
+
+Swept as key material — every join form, absolute values, mod 26 and mod 256,
+a1z26 letters, hex bytes, and combinations with the page vocabulary, plus digests
+of all of it — 3,768 candidates against all three blobs:
+
+```
+blob A (final)        3,768 candidates   30,144 trials   0 printable
+blob B (final, alt)   3,768 candidates   30,144 trials   0 printable
+phase 3.2 tail blob   3,768 candidates   30,144 trials   0 printable
+```
+
+Negative. As the issue's own author notes, the resolved table did not unlock a
+blob for them either.
+
+## Issue #107 — progress log
+
+An independent researcher's log, reporting the same wall: every extracted 32-byte
+segment yields a valid Bitcoin address, none match the targets. Their open leads
+are a 35x35 colour grid, a hand/cursor start position, and an unresolved QR code.
+Nothing there contradicts or advances the state recorded here.
