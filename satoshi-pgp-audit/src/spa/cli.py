@@ -520,6 +520,66 @@ def cmd_bruteforce(args) -> int:
     return 0
 
 
+# --------------------------------------------------------------- puzzle-pattern
+def cmd_puzzle_pattern(args) -> int:
+    from .analysis.puzzle_pattern import analyse, load_solved
+    solved = load_solved(args.data)
+    f = analyse(solved)
+    _p("Solved-key hot-zone test  (%d keys)" % f.n)
+    _p("=" * 74)
+    _p("decile histogram (position 0.0=bottom .. 1.0=top of each range):")
+    for i, c in enumerate(f.deciles):
+        _p("  %0.1f-%0.1f | %s %d" % (i / 10, (i + 1) / 10, "#" * c, c))
+    for note in f.notes:
+        _p("- %s" % note)
+    if f.hot_zone:
+        _p("HOT ZONE: aim a sweep at range fraction %.1f-%.1f first." % f.hot_zone)
+    else:
+        _p("No hot zone: sequential/any ordering is equally good.")
+    return 0
+
+
+# --------------------------------------------------------------- sweep
+def cmd_sweep(args) -> int:
+    from .lab.sweep import demo, load_puzzle, plan, run_local
+
+    if args.demo:
+        r = demo(bits=args.bits)
+        _p("DEMO sweep #%d  solved=%s  key=%s" % (args.bits, r.solved, r.private_key))
+        _p("  %s" % r.notes[-1])
+        return 0 if r.solved else 1
+
+    import os
+    puzzles = os.path.join(os.path.dirname(__file__), "..", "..", "data", "puzzles.json")
+    import json
+    addr = json.load(open(puzzles))["puzzles"][str(args.bits)]["address"]
+    p = plan(args.bits, addr, rate_per_sec=args.rate)
+    _p("Sequential brute-force sweep - puzzle #%d" % args.bits)
+    _p("=" * 74)
+    _p("address    : %s" % p["address"])
+    _p("range      : %s  (%d keys)" % (p["range_hex"], p["keys"]))
+    _p("assumed GPU: %.3g keys/s" % p["rate_per_sec"])
+    _p("full sweep : %s   <- honest, this is a lottery not an ETA" % p["full_sweep"])
+    _p("per %.0e keys: %.0fs  (odds %s)" %
+       (p["ticket_keys"], p["seconds_per_ticket"], p["odds_per_ticket"]))
+    _p("")
+    _p("No exposed pubkey => brute force only => no Kangaroo farm advantage here.")
+    _p("Run the real search with tools/run_rotor_sweep.bat (Rotor-CUDA on your GPU);")
+    _p("this Python path (--local) is the slow CPU reference/verify only.")
+    if args.local:
+        sweep = load_puzzle(args.bits, block=args.block, puzzles_path=puzzles)
+        if args.checkpoint and os.path.exists(args.checkpoint):
+            from .lab.sweep import Sweep
+            sweep = Sweep.load(args.checkpoint)
+            _p("resumed from %s at cursor 0x%x" % (args.checkpoint, sweep.cursor))
+        r = run_local(sweep, checkpoint_path=args.checkpoint,
+                      status_path=args.status, max_blocks=args.max_blocks)
+        _p("")
+        _p("local: solved=%s  %s" % (r.solved, r.notes[-1]))
+        return 0
+    return 0
+
+
 # --------------------------------------------------------------- kangaroo
 def cmd_kangaroo(args) -> int:
     import time
@@ -1112,6 +1172,24 @@ def main(argv=None) -> int:
     p.add_argument("--hash160", help="target hash160 (hex); omit for demo")
     p.add_argument("--max-scan", type=int, default=None)
     p.set_defaults(func=cmd_bruteforce)
+
+    p = sub.add_parser("puzzle-pattern",
+                       help="test whether solved puzzle keys cluster (a hot zone) or are uniform")
+    p.add_argument("--data", default=None, help="path to puzzle_solved.json")
+    p.set_defaults(func=cmd_puzzle_pattern)
+
+    p = sub.add_parser("sweep",
+                       help="sequential brute-force sweep of an address-only puzzle (#72)")
+    p.add_argument("--bits", type=int, default=72, help="puzzle number (default 72)")
+    p.add_argument("--rate", type=float, default=1.7e9, help="assumed GPU keys/s for ETA")
+    p.add_argument("--block", type=int, default=1 << 20, help="keys per block (local)")
+    p.add_argument("--checkpoint", help="cursor checkpoint file (crash-safe resume)")
+    p.add_argument("--status", help="status JSON for the progress window")
+    p.add_argument("--max-blocks", type=int, default=None, help="stop after N blocks (local)")
+    p.add_argument("--local", action="store_true",
+                   help="run the slow CPU reference sweep (small ranges/tests only)")
+    p.add_argument("--demo", action="store_true", help="plant+recover a key to prove the pipeline")
+    p.set_defaults(func=cmd_sweep)
 
     p = sub.add_parser("kangaroo",
                        help="Pollard Kangaroo interval ECDLP solver (Bitcoin Puzzle)")
