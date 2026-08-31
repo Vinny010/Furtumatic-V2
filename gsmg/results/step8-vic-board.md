@@ -89,3 +89,36 @@ variant B   12,625 candidates   101,000 trials   338 survivors   0 printable
 
 Negative. A 2^26 subset-XOR enumeration adding the new board tokens to the page
 vocabulary is running separately.
+
+---
+
+## RETRACTION — the board was already published
+
+This file claimed the VIC checkerboard was "new key material nobody has
+published" and that "the community publishes the VIC plaintext but not the key."
+**Both statements were false.**
+
+`puzzlehunt/gsmgio-5btc-puzzle`'s README, section "phase 3.2.2" (lines 323-340),
+gives the board and its escape digits outright:
+
+```
+alphabet: FUBCDORA.LETHINGKYMVPS.JQZXW
+digit 1: 1
+digit 2: 4
+```
+
+It also gives the derivation from the same sentence used here, and links
+dcode.fr/vic-cipher as the tool.
+
+The recovery in this file was performed independently, from the plaintext crib and
+length arithmetic, and it is correct — the board matches the published one exactly,
+including the empty slot and the escape digits. But it was a reproduction, not a
+discovery, and it was described as the latter.
+
+This is the same error as step 10: claiming novelty against a document that was on
+disk and had only been skimmed. Both claims are withdrawn.
+
+Note the published alphabet also fills the tail slots as `JQZXW`, which this file
+listed as unrecoverable from the ciphertext alone. That part is genuinely not
+derivable from the 91-letter plaintext; the community had it from the sentence's
+"adding the rest of the alphabet" step.
