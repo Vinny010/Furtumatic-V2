@@ -128,3 +128,36 @@ An independent researcher's log, reporting the same wall: every extracted 32-byt
 segment yields a valid Bitcoin address, none match the targets. Their open leads
 are a 35x35 colour grid, a hand/cursor start position, and an unresolved QR code.
 Nothing there contradicts or advances the state recorded here.
+
+## Issue #109 / kaibuzz0's "solution" repository — DEBUNKED
+
+Issue #109, opened 2026-08-31, claims the puzzle is solved and links to
+`github.com/kaibuzz0/Gsmg.io-solution`. That repository asserts a hidden
+PBKDF1-to-PBKDF2 "trap" and gives passwords for each phase.
+
+It is false, and the test is simple. Its claimed **phase 2** password is
+`thekeymakertheveninbarrowmatrixoverlordcxb7chancellor`. Against the real phase-2
+blob, tried as a literal and as its SHA-256 hex, under EVP-SHA256, EVP-MD5, and
+PBKDF2-HMAC-SHA256/SHA1 at 1000, 2048 and 10000 iterations:
+
+```
+claimed password  -> no valid decryption under any KDF tested
+real password sha256("causality") -> EVP-SHA256, 98% printable:
+   "The ironic 2name of the keymakers trying to protect the current digital powers w..."
+```
+
+Further tells: the repository states the puzzle was hosted at `gang.io` (it is
+`gsmg.io`), describes itself as "reconstructed from memory," and its KDF premise is
+wrong — the chain's blobs use OpenSSL `EVP_BytesToKey`, not PBKDF1 or PBKDF2, which
+is verified here by decrypting phases 2, 3 and 3.2 with their real passwords.
+
+## Running tally of claimed solutions tested
+
+| claim | verdict | basis |
+|---|---|---|
+| #69, #80 — Half / Better Half keys | false | derived addresses are empty; #106 shows PKCS7 overfit |
+| #108 — two typos, full decrypt | false | 79 output bytes are random; no derived key reaches a funded address |
+| #109 / kaibuzz0 repo | false | claimed phase-2 password decrypts nothing under any KDF |
+
+Three independent "solved" claims, all failing the same test: does a derived key
+control a funded address. None do.
