@@ -1,77 +1,72 @@
-# Step 10 — the phase 3.2 cipher block, SOLVED
+# Step 10 — RETRACTED: the phase 3.2 block was already solved publicly
 
 Date: 2026-08-31
 
-## What it is
+## Retraction
 
-The 1,539-character period-15 block decrypts to a message from "the Architect,"
-written in the voice of the Matrix Reloaded monologue but **rewritten for this
-puzzle**. It opens with the film's exact line and then diverges:
+An earlier version of this file claimed the 1,539-symbol block had been decoded
+here for the first time, and that "no community write-up contains this
+plaintext." **Both claims were false.**
 
-> "Your life is the sum of a remainder of an unbalanced equation inherent to the
-> programming of **this puzzle**..."
+`puzzlehunt/gsmgio-5btc-puzzle`'s README contains the block's complete plaintext,
+its letter-form transcription, and its key, at lines 292-320. That file was on
+disk throughout this work and was used as training data for the solver's trigram
+model.
 
-No community write-up contains this plaintext. Both stop at "a Beaufort-decoded
-speech" without producing it. This is the first recovery of the block's contents.
+## What actually happened
 
-## How it was solved
+The annealer reconstructed text that was present in its own language model. That
+is why the fit degraded outside the region the model had memorised: fitting column
+maps on the first half and applying them to the second half scored -3.575/char
+against -2.593 for English and -3.886 for random, only about a third of the way.
+A genuine solve generalises; this did not.
 
-Three earlier solver designs plateaued at ~25% of the way to English and I wrongly
-concluded (step 7) the plaintext was not English. The error was the cipher model,
-not the language:
+The "new findings" reported from the decode were misreadings of already-published
+text:
 
-- a single shared alphabet with 15 shifts (Quagmire II/III): -3.659/char
-- two keyed alphabets (Quagmire IV): -3.612/char
-- **15 fully independent substitution alphabets: -2.470/char** (English is -2.72)
+| reported here | actually published |
+|---|---|
+| "wordfording might be required" | "**brute forcing** might be required" |
+| "reinserting the prime basis" | "reinserting the prime **basics**" |
+| "a wise [ ] move hinted at" | "a **wiseman above** hinted at" |
+| "us [bufs] at GSMG" | "us **guys** at GSMG" |
+| "Ciao [mella] o" | "Ciao **bella** o" |
 
-The block uses a *different* substitution alphabet in each of the 15 positions — the
-general polyalphabetic case, which the shared-alphabet models cannot represent.
-`tools/polyalpha.c` anneals all 15 alphabets independently, frequency-seeded, and
-converges to readable English. The opening 85 characters reproduce the Architect
-monologue verbatim, which confirms the solution.
+None of these were discoveries.
 
-## The message, cleaned (residual column noise in brackets)
+## The actual solution, verified here
 
-> Your life is the sum of a remainder of an unbalanced equation inherent to the
-> programming of this puzzle. You are the eventuality of an anomaly which despite my
-> sincerest efforts I have been unable to eliminate from what is otherwise a harmony
-> of mathematical precision. While it remains a burden assiduously avoided it is not
-> unexpected and thus not beyond a measure of control which has led you inexorably
-> here. You... you haven't answered my question [ ] quite right. Interesting, that
-> was quicker than the others. Please, if you find a way to complete the last part
-> of the puzzle to get the private key — you see [anne] did it — but please take
-> this to heart, that what a wise [ ] move hinted at is **worth hundred fourty of
-> the investment**. That's what us [bufs] at GSMG are trying to accomplish in the
-> end. Please just help us build it instead of just wasting your time by hunting
-> worthless prices and trophies like this. I'm sorry to tell you that you [ ] this
-> [part] but you'll never finish the last [tag]. [ ] you to say bullshit. Well,
-> denial is the most predictable of all human responses, but rest assured this will
-> not be the last time. I have destroyed a restless soul and I have become
-> exceedingly efficient at it. The function of the [ ] is now to return to the
-> source code, allowing a temporary dissemination of the code you hopefully carry,
-> **reinserting the prime basis**, after which you will be required to select from
-> **twenty three ciphers, sixteen encryptions and/or seven intertwined passwords to
-> find the actual private key**. Note that also **wordfording might be required**.
-> Failure to comply with this process will result in a cataclysmic system crash...
-> Good luck, nevertheless I really hope you're the one. Ciao [ ]
+```
+symbols : %  ,  /  :  >  ?  [  _  `  À  Á  Â  Ã  Å  Ç  È  É  Ê  Ë  Ì  Í  Î  Ï  Ñ  ö  ø
+letters : l  k  a  z  n  o  c  m  y  d  e  b  f  g  h  t  q  r  s  x  u  v  w  i  j  p
 
-A few columns did not fully converge, leaving isolated wrong letters; the meaning
-is unambiguous. `data/phase32_block_plaintext.txt` holds the raw decode.
+then Beaufort with key THEMATRIXHASYOU (15 letters)
+-> YOURLIFEISTHESUMOFAREMAINDEROFANUNBALANCEDEQUATIONINHERENTTOTHEPROGRAMMINGOFTHISPUZZLE...
+```
 
-## Why it matters to the gate
+Verified: the published letter-string is 1,539 characters and maps one-to-one onto
+this block's symbols; the Beaufort decrypt reproduces the published plaintext.
 
-The message states the final-gate construction outright:
+## What does survive from this work
 
-- **"seven intertwined passwords"** — this is exactly the XOR-of-seven-token-digests
-  construction that produces the Dualite key. It confirms the mechanism the sweeps
-  here have been built on is the intended one, not a coincidence.
-- **"twenty three ciphers, sixteen encryptions"** — the count the write-ups quote
-  loosely, here stated by the author.
-- **"reinserting the prime basis"** — a step no write-up mentions. Primes are
-  named explicitly as part of the construction.
-- **"worth hundred fourty"** — a specific number, 140, not previously known.
-- **"wordfording"** — an instruction, likely a reword/reversal step, consistent
-  with the earlier `esrever` hint.
+Two results here were derived independently of the published material and remain
+correct:
 
-These are fresh, author-stated constraints on how the seven passwords combine, and
-new tokens (140, prime basis) to fold into the candidate generation.
+1. **The period is 15.** Index of coincidence (0.0645 against 0.0667 for English)
+   and Kasiski (factor 15 dividing 117 of 184 inter-repeat distances). Recovered
+   before any contact with the published key — and the published key,
+   `THEMATRIXHASYOU`, is exactly 15 letters.
+2. **The symbol-to-letter table is not byte order.** Confirmed against the real
+   mapping above, which is a scrambled alphabet.
+
+The step-7 conclusion that the plaintext "is not English" was also wrong, and the
+step-7 diagnosis of *why* the first solver failed (chi-squared key re-solving makes
+the objective discontinuous) was right — but the fix was not "15 independent
+alphabets". The single-permuted-alphabet model in `tools/quagmire.c` was already
+adequate to express the true solution; the search simply never reached it.
+
+## Lesson recorded
+
+The language model used to score a cipher solve must be verified free of the target
+text. It was not, and a contaminated model turned a reconstruction into an apparent
+discovery.
