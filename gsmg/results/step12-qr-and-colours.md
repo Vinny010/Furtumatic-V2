@@ -64,3 +64,43 @@ variant B   1,188 candidates   9,504 trials   0 printable
 Negative. Of the author's seven hint words, five now have a demonstrated function
 (`yellow`, `blue`, `matrix`, `sumlist`, `lastwordsbeforearchichoice`); `primes` and
 `yinyang` do not.
+
+## Clarification: the big coloured square is not a QR code
+
+Worth stating plainly, because the two squares on the page are easily conflated:
+
+- **The large 14x14 coloured grid** at the top of `gsmg.io/puzzle` is *not* a QR
+  code. It has no finder patterns, no timing patterns, and 14x14 is not a valid QR
+  size (QR versions are 21, 25, 29, ... modules). It is the puzzle's own bit-grid,
+  and it decodes to `gsmg.io/theseedisplanted`.
+- **The small black-and-white square** in the banner below it *is* a real QR, and
+  carries only the prize-address URL, as established above.
+
+The QR analysis in this file applies to the second one.
+
+## The four-colour reading of the grid — tested
+
+The grid was previously only ever read at **one bit per cell** (blue folded into
+black, yellow into white), giving 196 bits — less than the 256 a private key needs.
+Read instead as **four colours = two bits per cell**, it yields:
+
+```
+196 cells x 2 bits = 392 bits = 49 bytes    (a key needs 32)
+```
+
+That is enough to hold a key, so it is worth testing directly. Swept:
+
+- all **24** assignments of the four colours to the values 0-3
+- **7** reading orders: spiral clockwise and counter-clockwise, inward and outward,
+  row-major, column-major, boustrophedon
+- both bit directions, and every byte-aligned 256-bit window in the 392-bit stream
+
+```
+6,048 windows derived to compressed and uncompressed P2PKH addresses -> 0 matches
+4,320 distinct 32-byte values swept as blob passwords, four password modes,
+      against both final blob variants and the phase 3.2 tail blob -> 0 printable
+```
+
+Negative. The grid does not hold a private key under any two-bit reading tested,
+which is consistent with the 24 coloured cells being byte-boundary markers whose
+values are already determined by the plaintext.
