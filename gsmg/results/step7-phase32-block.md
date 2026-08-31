@@ -78,30 +78,45 @@ best to second-best above 1.15). If the symbol-to-letter table were byte order,
 every column would peak sharply. It does not, so the table is a non-order-
 preserving permutation.
 
-## The plaintext is not English
+## CORRECTION — the plaintext is English-like after all
 
-This is the useful negative. Calibrating the trigram scorer on 1,539-letter
-samples:
+An earlier version of this file concluded, from a failed annealing run, that the
+block's plaintext "is not English text". That conclusion was wrong. A decisive
+test I should have run first settles it.
 
-| text | score per letter |
+In a period-15 cipher, each column's *ciphertext* can use at most as many distinct
+symbols as the plaintext alphabet contains. Counting distinct symbols per column
+(about 103 characters each):
+
+```
+20, 20, 21, 21, 21, 21, 21, 22, 22, 22, 22, 22, 22, 22, 23      mean 21.5
+```
+
+Expected distinct symbols in 103 draws:
+
+| source | expected |
 |---|---|
-| real English (the phase 3 plaintext) | **-2.722** |
-| uniform random letters | **-3.980** |
-| best the annealer reaches, 25+ restarts, both orientations | **-3.774** |
+| English letter frequencies | **20.6** |
+| uniform over 26 letters | 25.5 |
+| hex (16 symbols) | 16.0 |
+| digits (10) | 10.0 |
 
-The scorer separates English from random by 1.258 per letter, so it is perfectly
-capable of recognising English at this length. The search plateaus at 0.206 above
-random — about 16% of the way — and independent restarts with completely different
-keys and permutations converge to the same plateau (-5809, -5808, -5808, -5790).
-That is the signature of no English signal to find, not of a search that needs
-more time.
+The observed 21.5 matches English almost exactly and is far below uniform. So the
+plaintext uses a full 26-letter alphabet with English-like skew — it is **not** hex,
+digits, base64, or any restricted alphabet, and it is not uniform.
 
-**Conclusion: this block is a period-15 polyalphabetic cipher over a plaintext that
-is not English text.** Its plaintext is most likely a further encoded layer —
-another symbol alphabet, base64, or digits — consistent with the puzzle's own claim
-of stacked ciphers.
+What failed was the search, not the hypothesis.
 
-This matters for anyone continuing: attacking this block with an English-language
-solver cannot work, and the published description of a "Beaufort-decoded speech"
-does not apply to this object. The readable Architect speech is already in
-cleartext at the top of the phase 3.2 plaintext; it was never inside this block.
+## Why the first search failed
+
+The first solver re-solved all 15 key values by chi-squared at every step. That
+makes the objective discontinuous: a single swap in the alphabet permutation
+silently rewrites all 15 keys, so neighbouring states have unrelated scores and the
+annealer cannot descend. It plateaued at -3.774 per character against -3.980 for
+random and -2.722 for English — about 16% of the way — with independent restarts
+landing on the same plateau, which I misread as absence of signal rather than as a
+broken landscape.
+
+`tools/quagmire.c` fixes this by annealing the permutation **and** the 15 key values
+jointly, with key perturbation as a separate move type, so single moves make small
+score changes. Calibration targets: English -2.72 per character, random -3.98.
