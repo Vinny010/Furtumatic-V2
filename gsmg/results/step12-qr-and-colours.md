@@ -104,3 +104,47 @@ That is enough to hold a key, so it is worth testing directly. Swept:
 Negative. The grid does not hold a private key under any two-bit reading tested,
 which is consistent with the 24 coloured cells being byte-boundary markers whose
 values are already determined by the plaintext.
+
+## Tested: is the grid the inner part of a QR with the finders missing?
+
+The hypothesis is well-formed and the arithmetic is suggestive: a version-1 QR is
+21x21, its three finder patterns occupy rows 0-6 and cols 0-6, and the remaining
+contiguous square is rows 7-20 x cols 7-20 — **exactly 14x14**, the grid's size.
+
+Tested three ways.
+
+**1. Format-bit validation.** If the grid were that quadrant, specific grid cells
+would land on format-information bits, which are BCH(15,5)-encoded and therefore
+self-validating. Under every colour-to-bit mapping, the implied format word is not
+one of the 32 valid codes:
+
+```
+blue=black,yellow=white : 111010111011111   invalid
+blue=white,yellow=black : 111000111011101   invalid
+only K black            : 111000111011101   invalid
+```
+
+**2. Full reconstruction and decode.** Built complete 21x21 QRs with standard
+finders, separators, timing patterns and dark module, placed the grid in rows 7-20
+x cols 7-20, and wrote each of the 32 valid format codes into both format
+positions. Across 4 colour mappings x 4 rotations x 2 flips x 32 format codes:
+
+```
+1,024 full-QR reconstructions attempted -> 0 successful decodes
+```
+
+**3. Finder search.** The best 7x7 match to a finder pattern anywhere in the grid
+scores **32/49**. A real finder scores 49/49; random noise averages 24-25. There is
+no finder pattern present, whole or partial.
+
+**Structural argument.** A QR's data region is never a contiguous square — in every
+version the three finders sit at three corners, leaving an L-shaped data area. The
+only 14x14 contiguous square in a version-1 QR is the one tested.
+
+**Decisive argument.** The grid is already fully accounted for. 192 of its 196 cells
+spell `gsmg.io/theseedisplanted` as 8-bit ASCII read in a counter-clockwise spiral,
+and the 4 remaining cells are the all-white centre where the rabbit is drawn. There
+are no unexplained bits left over to be QR codewords.
+
+Conclusion: the grid is not a QR code, complete or partial. It is a bit-grid whose
+content is known and whose capacity is fully consumed.
