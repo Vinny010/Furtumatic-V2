@@ -80,3 +80,95 @@ The critique's diagnosis of *why* the sweeps failed is better than mine was: the
 search space was not merely large, it was defined to be empty by the author. Its two
 factual corrections are accepted and recorded. Its proposed experiments are now run,
 and both are negative — so the live space is narrower still, not wider.
+
+---
+
+# Second critique pass — corrections and results
+
+## The "104" claim is wrong, and the correction strengthens the prime reading
+
+The follow-up argues the author's quoted *"104 is the fefefe square"* disagrees with
+this repo's (7,4), implying the marked cell is really (7,5).
+
+The pixel measurement is unambiguous and settles it:
+
+```
+254-valued block : x 300-374, y 525-599, exactly 5,625 px
+col 4 spans      : x 299.4 .. 374.3
+col 5 spans      : x 374.3 .. 449.1
+=> the block occupies col 4. It is cell (row 7, col 4).
+```
+
+Its indices:
+
+```
+row-major 0-based : 102        row-major 1-based : 103   PRIME
+spiral index      : 163  PRIME
+```
+
+**104 is not prime. 103 is.** So if the author's hint word `primes` points at the
+marked square's index — which is the follow-up's own argument — then it points at
+**103**, the actual cell, not at 104. The quoted "104" is second-hand and either a
+relay error or a different indexing convention; it cannot be the prime being
+referenced.
+
+## A factual error in the follow-up
+
+It states that cells (7,4) and (7,5) are *"both classified black (1) in decode_grid's
+median sample."* They are not:
+
+```
+cell(7,3) modal RGB (255,255,255)  white      purity 100.0%
+cell(7,4) modal RGB (254,254,254)  white      purity 100.0%
+cell(7,5) modal RGB (255,255,255)  white      purity 100.0%
+```
+
+Both candidate cells are white at full purity. There is no black/white ambiguity to
+exploit between them.
+
+## Verified from the follow-up
+
+```
+spiral index 163 is prime          correct
+blue slot-sum (1-based)  = 157     correct
+yellow slot-sum (1-based) = 143    correct
+blue 15 slots, yellow 9 slots      correct
+```
+
+## A coincidence worth recording
+
+The number 103 appears three times, and 7 twice:
+
+```
+marked cell, 1-based row-major : 103   (prime)
+Dualite secondary string length: 103
+Dualite matrix dimension       : 103 x 103
+Dualite readout offset k       : 7
+marked cell row                : 7
+```
+
+The Cosmic Duality readout rule is `secondary[i] = row[i] + col[(i+7) % 103]`. The
+marked cell's own index is 103 and its row is 7. This may be coincidence — 103 is
+forced by the 1327-byte plaintext length, and the marked cell's index is forced by
+its position — but the two numbers that define the Dualite readout are exactly the
+two that describe the marked cell.
+
+## Work run — negative
+
+Used 102, 103, 104, 163, 42 and 7 as origins into every recovered object (`dbbi` 91,
+`faed` 570, the 256-symbol object, the Bifid plaintext, and the 103-char Dualite
+secondary): split-and-rotate at the index, delete the index, the character at the
+index, windows of 8/16/32/64 from it, and every-nth readings. Plus the slot sums
+157/143 and the blue/yellow letter strings.
+
+```
+1,455 candidates x 3 blobs x 8 modes = 34,920 trials   0 printable
+```
+
+## Standing
+
+The follow-up's framing — that the live space is now small and discrete rather than
+a billion-candidate sweep — is right, and its instinct to exploit an indexing
+disagreement is the correct shape of move. But the disagreement it identified does
+not exist: the pixel data is unambiguous, both candidate cells are white, and the
+prime is 103, not 104.
