@@ -47,7 +47,11 @@ line art skews the mean and flips cell (7,6).
 ## The final gate
 
 `data/blob.b64` is the small blob: 96 bytes, `Salted__`, salt `3ab585348552415d`,
-80 bytes of ciphertext.
+80 bytes of ciphertext. Verified against a capture of the live page
+(`data/salphaseion_page.mhtml`) — but note it is a **reconstruction**, not a page
+substring: reaching 128 base64 characters requires deleting a 40-character `enter`
+run embedded inside the ciphertext and dropping a trailing `s`. See
+`data/PROVENANCE.md`.
 
 **80 bytes of ciphertext means the plaintext is 64-79 bytes.** A raw 32-byte private
 key encrypts to 48 bytes of ciphertext, and a 51-52 character WIF key to 64. Neither
@@ -107,6 +111,16 @@ inspectable by hand.
 
 The crypto is free. This is a candidate-generation problem, not a compute problem.
 
+## The page itself
+
+`tools/parse_page.py` re-derives every published decoding from the page capture
+alone — the 1075-token count, `matrixsumlist`, `enter`,
+`lastwordsbeforearchichoice`, `thispassword`, and the blob's shape and salt. All
+checks pass. The stream's structure and the `shabef` = `sha256` hint are documented
+in `data/PROVENANCE.md`.
+
 ## Results
 
-See `results/step1.md`.
+See `results/step1.md` and `results/step2.md`. Both negative:
+3,838,457 candidates, 7,676,914 trials, 30,233 PKCS7 survivors, 0 printable
+plaintexts.
