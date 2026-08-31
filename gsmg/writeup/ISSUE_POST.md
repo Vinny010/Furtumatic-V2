@@ -54,9 +54,9 @@ OpenSSL blob needs its base64 length to be a multiple of 64):
 | A — deletes `enter` (the one everyone uses) | 96 | `3ab585348552415d` | 80 |
 | B — keeps `enter` | 96 | `3ab585348552415d` | 80 |
 
-Both carry the `Salted__` header; their ciphertexts diverge from byte 48. Variant B
-appears nowhere in this repository's history. It has been swept here alongside A —
-negative — but it should be on the board.
+Both carry the `Salted__` header; their ciphertexts diverge from byte 48. I have not
+seen variant B raised in the issues I have read, though I have not read all of them.
+It has been swept here alongside A — negative — but it belongs on the board.
 
 ## 3. Three "solved" claims, tested
 
