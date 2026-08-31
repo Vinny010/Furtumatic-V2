@@ -57,3 +57,31 @@ The 570-char Bifid segment is the largest object on the page and has not been
 decoded here. Its published reduction (odd-position stream, I and O removed, 256
 symbols over a 23-letter alphabet) is where ~335.7M of the community's candidates
 went, all negative.
+
+## Addendum — the second blob
+
+Acting on the reconstruction finding above: an OpenSSL blob needs its base64 length
+to be a multiple of 64 for the ciphertext to be a multiple of 16 bytes. From the
+180-character blob region that permits only a 128-character selection, and exactly
+two distinct ones exist:
+
+| variant | b64 | bytes | salt | ciphertext | valid |
+|---|---|---|---|---|---|
+| A — deletes the `enter` run (community) | `U2FsdGVkX186…GuN/jJ` | 96 | `3ab585348552415d` | 80 | yes |
+| B — keeps the `enter` run | `U2FsdGVkX186…Ri6s` | 96 | `3ab585348552415d` | 80 | yes |
+
+Both carry the `Salted__` header and the same salt (they share their first 64 base64
+characters), and their ciphertexts diverge from byte 48 onward. Variant B is stored
+as `data/blob_variant_b.b64`.
+
+Variant B does not appear anywhere in the published record: every sweep documented
+by the community, and both sweeps here, ran against variant A.
+
+Swept both corpora against variant B:
+
+```
+3,838,457 candidates   7,676,914 trials   29,991 PKCS7 survivors   0 printable
+```
+
+Negative — but it removes an assumption that had never been tested rather than
+merely re-testing one that had.
