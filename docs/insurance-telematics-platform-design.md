@@ -249,3 +249,61 @@ The insurance platform should be a separate repository (or a clearly separated `
 5. What is the target collar (min/max) per vehicle, and how will the base/usage split be disclosed to policyholders?
 6. What is the dispute window and who adjudicates?
 7. Retention periods per data class per region, and who is the Information Officer / DPO?
+
+---
+
+## 11. Build timeline: South Africa first, region-ready
+
+### Assumptions
+
+- Team: 1 tech lead/architect, 3 backend engineers (one owning ingestion/geo, one rating/billing, one platform), 1 web front-end, 1 mobile engineer, 1 QA/test automation, 1 product owner/business analyst, part-time DevOps and part-time compliance/legal. Roughly 7–8 people. A team half this size stretches every phase by about 50%.
+- FleetCam provides API sandbox access within the first 4 weeks. This is the critical-path dependency; every week of delay here moves go-live by a week.
+- The insurer/actuary participates from week 1 and signs off calibrated rates by month 7.
+- Two-week sprints. Dates below are relative to project kick-off.
+
+### Phases
+
+| Phase | Weeks | Outcome |
+|---|---|---|
+| 0. Foundations | 1–4 | Contracts and data agreements in motion, FleetCam API spec and sandbox, rate-table v1 from your costing, POPIA impact assessment started, UX designs for portal and app, infra and CI/CD skeleton in the SA region, Apple/Google developer accounts opened. |
+| 1. Core platform and pilot (shadow mode) | 5–16 | Ingestion from FleetCam, vehicle/device mapping, usage processor (zones, time bands, continuous driving), usage records, rating engine v1, admin back office basics, fleet-owner web portal with live meter and month-end statements, mobile app v1 (internal/TestFlight), pilot fleet of 50–200 trucks running in shadow billing. |
+| 2. Live billing build and calibration | 17–32 | Shadow data calibrates rates and the collar for 2–3 months. In parallel: policy admin, base + adjustment invoicing, ledger, DebiCheck debit orders, dispute workflow, insurer bordereaux, 60/40 commission statements, rate-table approval workflow, month-close runbook. Mobile app v2 (driver scores, alerts, incentives) submitted to the stores. Penetration test, POPIA readiness review, ISO 27001 gap assessment. |
+| Go-live | 33–36 | Insurer signs off calibrated rates. First cohort moves from shadow to live PAYG billing. Month 9 from kick-off. |
+| 3. Rollout and hardening | 37–52 | Remaining FleetCam clients onboarded in cohorts, streaming and partitioning work for 5,000+ vehicles, operations dashboards, SLA monitoring, and a second empty regional cell stood up in staging to prove the region model before any EU/Mauritius work. |
+
+Headline: **pilot in shadow mode at month 4, live pay-as-you-go billing in South Africa at month 9, full SA rollout and scale-readiness by month 12.**
+
+Adding a new region afterwards is 4–6 months each, and most of that is licensing and legal work rather than code, provided the region-ready rules below were followed.
+
+### What "region-ready" means in practice during Phase 1
+
+These are cheap on day one and expensive to retrofit, so they are non-negotiable in the first sprints even though only South Africa is live:
+
+- Every tenant carries a `home_region`; every table holding personal data is partitioned or scoped by region; no query joins across regions.
+- Infrastructure-as-code parameterised by region, so a second cell is a configuration change plus approvals, not a rebuild.
+- Currency, tax, locale, date formats and legal driving-hour thresholds are configuration per region, never constants.
+- All timestamps stored in UTC with the vehicle's timezone recorded on the usage record.
+- Portal and app built with internationalisation from the first screen, even if only English ships initially.
+- Secrets and encryption keys per region; audit log in place before the first invoice is generated.
+- Payment provider, identity provider and telematics feed all sit behind interfaces so they can be swapped per region.
+
+### Mobile app: exclusive to FleetCam clients
+
+Exclusivity is enforced at sign-in, not at download:
+
+- **Fleet-owner accounts** are created only through the broker back office, linked to a FleetCam client ID, and verified by matching the client's device list through the FleetCam API. No self-service sign-up.
+- **Driver accounts** are invited by their fleet owner via SMS/email link with a one-time code, and are bound to that fleet. A driver who leaves the fleet loses access when the fleet owner removes them.
+- If FleetCam has its own login system, add "Sign in with FleetCam" so clients use one identity; confirm this with FleetCam during Phase 0.
+- **Distribution:** a normal public listing on the App Store and Google Play with a gated sign-in is the simplest and works on drivers' personal phones. Apple's unlisted-app distribution and Google Play private apps are options if FleetCam wants the app invisible to the public, but they complicate onboarding for drivers. Recommendation: public listing, gated sign-in, branding co-approved with FleetCam given clauses 4.6 and 15.
+- **One app, two roles** (fleet owner and driver) on a single React Native/Expo codebase. Fleet owner sees the fleet map, per-vehicle meter, projections, alerts, statements and invoices. Driver sees own trips, score, fatigue nudges and incentive status. Split into two apps later only if the audiences diverge.
+- Offline-tolerant for drivers in poor coverage, push notifications for alerts, and no raw video ever cached on the device.
+
+Mobile timeline: v1 internal build by week 16, store submission in Phase 2 around week 26, public availability by week 30. Start Apple and Google developer enrolment in week 1: company verification (D-U-N-S number for Apple) can take several weeks.
+
+### Things that most often move this timeline
+
+1. FleetCam API readiness, field coverage, and whether trips/events are available or only raw positions.
+2. Insurer sign-off of the rating model and policy wording for a variable premium.
+3. DebiCheck onboarding with the bank or payment provider, which typically takes 4–8 weeks and should start in Phase 1.
+4. Quality of the pilot fleet's data. If continuous-driving or driver-identification data is unreliable, calibration takes longer.
+5. Apple developer enrolment and app review.
