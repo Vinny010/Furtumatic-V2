@@ -1,0 +1,12 @@
+{
+  "corpus": "/home/user/bensig/patoshi-addresses/patoshi_pubkeys_COMPLETE.csv",
+  "keys_scanned": 21955,
+  "max_delta": 2048,
+  "duplicate_keys": 0,
+  "related_pairs": [],
+  "control_detected": true,
+  "elapsed_seconds": 164.2557771205902,
+  "notes": [
+    "No duplicate keys and no related keys within delta <= 2048. This rules out sequential, incrementing and small-offset key generation across the corpus - a whole class of generator defect, excluded by measurement rather than assumption."
+  ]
+}

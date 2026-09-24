@@ -1,0 +1,21 @@
+services:
+  gnupg147:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.gnupg147
+    image: satoshi-pgp-audit/gnupg147:latest
+
+  lab:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.lab
+    image: satoshi-pgp-audit/lab:latest
+    depends_on: [gnupg147]
+    volumes:
+      - ../reports:/app/reports
+    command: python3 -m spa.cli report
+
+  tests:
+    image: satoshi-pgp-audit/lab:latest
+    depends_on: [lab]
+    command: python3 -m pytest tests -v

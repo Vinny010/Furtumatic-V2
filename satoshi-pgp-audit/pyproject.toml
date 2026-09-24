@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "satoshi-pgp-audit"
+version = "1.0.0"
+description = "Reproducible audit of the historical GnuPG environment behind OpenPGP key 0x5EC948A1"
+requires-python = ">=3.8"
+dependencies = []
+
+[project.optional-dependencies]
+fast = ["gmpy2>=2.1"]
+dev = ["pytest>=7.0"]
+
+[project.scripts]
+spa = "spa.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

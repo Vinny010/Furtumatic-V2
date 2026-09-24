@@ -1,0 +1,7 @@
+# Runtime has no hard third-party dependency: the OpenPGP parser, DSA and secp256k1
+# arithmetic, RIPEMD-160, and the NIST statistical battery are all implemented in
+# the package itself. That keeps the audit auditable.
+pytest>=7.0
+# Optional: ~100x faster primality proofs for 1024-bit p. Falls back to a built-in
+# Miller-Rabin when absent.
+gmpy2>=2.1; platform_python_implementation == "CPython"
