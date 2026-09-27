@@ -18,3 +18,14 @@ middle bit), planted-leak and true-random controls.
 Detection floor (5 sigma) scales as 5/sqrt(N): 10 M -> 0.158 %, 1 B -> 0.0158 %, 100 B -> 0.0016 %.
 Run with `uv run bigtest3.py` (uv resolves numpy/scipy/scikit-learn/coincurve from the script header).
 Set OMP_NUM_THREADS=1 or workers will fight over BLAS threads (3x slower).
+
+## hotzone_search.py — automated "new math" search for hot-zone functions
+
+Machine-generated formula search (random expression trees over point coordinates with add, mul, inv,
+square, power-residue operators) plus a 138-feature number-theoretic library, scored against
+k mod 2/3/4/5 and which half / quarter / decile of a 64-bit interval. Bonferroni-corrected, confirmed
+on a held-out half. Positive control: Z_p^* mod 2^61-1, where power-residue symbols provably leak k mod m.
+
+Result (400k samples library, 40k samples x 2,000 formulas): control group 10 library + 590 formula hits,
+all with perfect effect size (the search rediscovers the Legendre-symbol leak unprompted);
+secp256k1: 0 library hits, 0 formula hits. See hotzone_search_results.txt.
