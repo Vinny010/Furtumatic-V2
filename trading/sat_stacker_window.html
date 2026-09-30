@@ -1,0 +1,205 @@
+<title>Sat Stacker</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap">
+<style>
+  :root{
+    --bg:#0b0e13; --panel:#141a22; --panel2:#0f151d; --line:#232c38;
+    --txt:#e6edf3; --dim:#8a97a6; --up:#26d07c; --down:#ff5c5c;
+    --price:#3aa0ff; --gold:#f2a900;
+    --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  html,body{height:100%}
+  body{background:var(--bg);color:var(--txt);font-family:var(--mono);
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:1120px;margin:0 auto;padding-block:18px;padding-left:16px;padding-right:16px}
+  header{display:flex;flex-wrap:wrap;align-items:baseline;gap:10px 14px;margin-bottom:4px}
+  h1{font-size:17px;font-weight:800;letter-spacing:1px;margin:0}
+  h1 .diamond{color:var(--gold)}
+  .sim{font-size:10px;font-weight:700;letter-spacing:.5px;color:var(--gold);
+    border:1px solid #3a2f10;background:#1c1708;padding:2px 7px;border-radius:4px}
+  .sub{color:var(--dim);font-size:12px;margin:2px 0 16px;display:flex;flex-wrap:wrap;
+    gap:6px 12px;align-items:center}
+  .badge{display:inline-block;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700;letter-spacing:.4px}
+  .b-harvest{background:#07231a;color:var(--up);border:1px solid #124631}
+  .b-bull{background:#2a2207;color:var(--gold);border:1px solid #4a3c10}
+  .controls{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;align-items:center}
+  button{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--txt);
+    background:var(--panel);border:1px solid var(--line);border-radius:6px;
+    padding:7px 13px;cursor:pointer;letter-spacing:.3px}
+  button:hover{border-color:#3a4756}
+  button:focus-visible{outline:2px solid var(--price);outline-offset:2px}
+  .spd{display:flex;align-items:center;gap:8px;color:var(--dim);font-size:11px}
+  input[type=range]{accent-color:var(--gold)}
+  .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}
+  .tile{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:13px 14px}
+  .tile .k{color:var(--dim);font-size:10.5px;text-transform:uppercase;letter-spacing:.7px}
+  .tile .v{font-size:23px;font-weight:800;margin-top:5px;font-variant-numeric:tabular-nums}
+  .charts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+  @media(max-width:720px){.charts{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:13px}
+  .card h2{font-size:11px;color:var(--dim);margin:0 0 9px;text-transform:uppercase;letter-spacing:.7px;font-weight:700}
+  svg{width:100%;height:190px;display:block}
+  .tbl-wrap{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:12px;font-variant-numeric:tabular-nums}
+  th{color:var(--dim);text-align:right;font-weight:600;padding:7px 10px;border-bottom:1px solid var(--line);
+    text-transform:uppercase;letter-spacing:.4px;font-size:10.5px;white-space:nowrap}
+  td{text-align:right;padding:6px 10px;border-bottom:1px solid #1b2330;white-space:nowrap}
+  th:first-child,td:first-child{text-align:left}
+  .pos{color:var(--up)} .neg{color:var(--down)} .gold{color:var(--gold)}
+  .foot{color:var(--dim);font-size:11px;line-height:1.5;margin-top:14px;
+    border-top:1px solid var(--line);padding-top:12px}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1><span class="diamond">◆</span> SAT STACKER — GRID MONITOR</h1>
+    <span class="sim">SIMULATED FEED · DEMO</span>
+  </header>
+  <div class="sub">
+    <span id="pair">BTCUSDT</span>
+    <span>· regime: <span id="regime" class="badge b-harvest">HARVEST</span></span>
+    <span>· running <span id="runtime">0m 00s</span></span>
+    <span>· grid step <span id="stepv">0.40%</span></span>
+  </div>
+
+  <div class="controls">
+    <button id="toggle">⏸ Pause</button>
+    <button id="reset">↺ Reset</button>
+    <span class="spd">speed
+      <input id="speed" type="range" min="1" max="20" value="6" aria-label="speed">
+    </span>
+    <span class="spd">chop&nbsp;⇄&nbsp;trend
+      <input id="drift" type="range" min="-10" max="10" value="0" aria-label="market drift">
+    </span>
+  </div>
+
+  <div class="tiles" id="tiles"></div>
+
+  <div class="charts">
+    <div class="card"><h2>Profit — your stack in BTC</h2>
+      <svg id="eq" viewBox="0 0 500 190" preserveAspectRatio="none" role="img" aria-label="stack over time"></svg></div>
+    <div class="card"><h2>Price + trades</h2>
+      <svg id="px" viewBox="0 0 500 190" preserveAspectRatio="none" role="img" aria-label="price with buy and sell markers"></svg></div>
+  </div>
+
+  <div class="card"><h2>Trades — newest first</h2>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Time</th><th>Side</th><th>Price</th><th>Qty BTC</th><th>Stack BTC</th></tr></thead>
+      <tbody id="tb"></tbody>
+    </table></div></div>
+
+  <div class="foot">
+    <b>This is a simulation</b> — a synthetic price feed to show how the window behaves, not live market data.
+    The real bot (<code>grid_dashboard.py --live</code>) runs the identical dashboard on live Binance prices on your own machine.
+    Gold line = BTC stack (above the dashed line = stacking sats vs holding). Green ▲ = buy, red ▼ = sell.
+    Drag <b>chop ⇄ trend</b> to see the honest truth: in a strong uptrend the grid trips the BULL gate and trails just-holding.
+  </div>
+</div>
+
+<script>
+// ---- grid engine: mirrors paper_grid.py PaperGrid, conservative fills ----
+const START_BTC = 0.5, STEP = 0.004, UNIT_FRAC = 0.08, FEE = 0.0, TREND_BAND = 0.05;
+let g, hist, trades, ticks, running = true, spd = 6, drift = 0;
+
+function randn(){ // Box–Muller
+  let u=0,v=0; while(!u)u=Math.random(); while(!v)v=Math.random();
+  return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);
+}
+function newGrid(){
+  const p0=60000, cap=START_BTC*p0;
+  g={p0, price:p0, ma:p0*0.97, btc:cap*0.5/p0, usd:cap*0.5, unit:cap*UNIT_FRAC,
+     ref:p0, buys:0, sells:0};
+  hist=[]; trades=[]; ticks=0;
+}
+function bull(mid){ return mid > g.ma*(1+TREND_BAND); }
+function valueBtc(mid){ return g.btc + g.usd/mid; }
+
+function step(){
+  // price tick: base vol + optional drift from slider
+  g.price *= Math.exp(randn()*0.0011 + drift*0.00003);
+  const mid=g.price, half=mid*0.00005, bid=mid-half, ask=mid+half;
+  const ts=fmtClock(ticks);
+  let acted=null;
+  if(mid <= g.ref*(1-STEP) && g.usd>=g.unit){
+    const q=g.unit/ask; g.btc+=q*(1-FEE); g.usd-=g.unit; g.ref=mid; g.buys++; acted=["BUY",ask,q];
+  } else if(mid >= g.ref*(1+STEP) && g.btc*bid>g.unit && !bull(mid)){
+    const q=g.unit/bid; g.btc-=q; g.usd+=q*bid*(1-FEE); g.ref=mid; g.sells++; acted=["SELL",bid,q];
+  } else if(bull(mid)){ g.ref=mid; }
+  ticks++;
+  if(acted){ trades.push({time:ts,side:acted[0],price:acted[1],qty:acted[2],stack:valueBtc(mid)});
+    if(trades.length>60) trades.shift(); }
+  if(ticks%3===0 || acted){ hist.push([ticks,mid,valueBtc(mid)]); if(hist.length>400) hist.shift(); }
+}
+
+// ---------------------------------------------------------------- rendering
+function fmtN(n,d){return Number(n).toLocaleString(undefined,{minimumFractionDigits:d,maximumFractionDigits:d});}
+function fmtClock(t){const s=t; const m=Math.floor(s/60), x=s%60; return (m<10?'0':'')+m+':'+(x<10?'0':'')+x;}
+function scale(pts){
+  if(!pts.length) return null;
+  const xs=pts.map(p=>p[0]), ys=pts.map(p=>p[1]);
+  const x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
+  const W=500,H=190,pad=8;
+  const sx=v=> x1===x0? W/2 : pad+(v-x0)/(x1-x0)*(W-2*pad);
+  const sy=v=> y1===y0? H/2 : H-pad-(v-y0)/(y1-y0)*(H-2*pad);
+  return {sx,sy,d:pts.map((p,i)=>(i?'L':'M')+sx(p[0]).toFixed(1)+' '+sy(p[1]).toFixed(1)).join(' ')};
+}
+function draw(){
+  const mid=g.price;
+  // sub / regime
+  document.getElementById('runtime').textContent =
+    Math.floor(ticks/60)+'m '+String(ticks%60).padStart(2,'0')+'s';
+  const rb=document.getElementById('regime'), isB=bull(mid);
+  rb.textContent=isB?'BULL (selling paused)':'HARVEST';
+  rb.className='badge '+(isB?'b-bull':'b-harvest');
+  // tiles
+  const stack=valueBtc(mid), sp=(stack/START_BTC-1)*100, cls=sp>=0?'pos':'neg';
+  const tiles=[
+    ['Stack (BTC)',fmtN(stack,5),'gold'],
+    ['Sats vs HODL',(sp>=0?'+':'')+fmtN(sp,2)+'%',cls],
+    ['Value (USD)','$'+fmtN(g.btc*mid+g.usd,0),''],
+    ['Price','$'+fmtN(mid,0),''],
+    ['Trades',(g.buys+g.sells)+' ('+g.buys+'B/'+g.sells+'S)',''],
+    ['BTC / USDC',fmtN(g.btc,4)+' / $'+fmtN(g.usd,0),''],
+  ];
+  document.getElementById('tiles').innerHTML = tiles.map(t=>
+    `<div class="tile"><div class="k">${t[0]}</div><div class="v ${t[2]}">${t[1]}</div></div>`).join('');
+  // equity
+  const eq=scale(hist.map(h=>[h[0],h[2]]));
+  document.getElementById('eq').innerHTML = eq ?
+    `<line x1="0" y1="${eq.sy(START_BTC).toFixed(1)}" x2="500" y2="${eq.sy(START_BTC).toFixed(1)}" stroke="#8a97a6" stroke-dasharray="3 4" stroke-width="1"/>`+
+    `<path d="${eq.d}" fill="none" stroke="#f2a900" stroke-width="1.7"/>` : '';
+  // price + markers
+  const pp=scale(hist.map(h=>[h[0],h[1]]));
+  let marks='';
+  if(pp){ trades.forEach(t=>{
+    const h=hist.reduce((a,b)=>Math.abs(b[1]-t.price)<Math.abs(a[1]-t.price)?b:a,hist[0]);
+    marks+=`<circle cx="${pp.sx(h[0]).toFixed(1)}" cy="${pp.sy(t.price).toFixed(1)}" r="2.7" fill="${t.side==='BUY'?'#26d07c':'#ff5c5c'}"/>`; }); }
+  document.getElementById('px').innerHTML = pp ?
+    `<path d="${pp.d}" fill="none" stroke="#3aa0ff" stroke-width="1.5"/>`+marks : '';
+  // table
+  document.getElementById('tb').innerHTML = trades.slice().reverse().slice(0,30).map(t=>
+    `<tr><td>${t.time}</td><td class="${t.side==='BUY'?'pos':'neg'}">${t.side}</td>`+
+    `<td>$${fmtN(t.price,0)}</td><td>${fmtN(t.qty,6)}</td><td>${fmtN(t.stack,5)}</td></tr>`).join('')
+    || '<tr><td colspan="5" style="color:var(--dim)">no fills yet…</td></tr>';
+}
+
+// ---------------------------------------------------------------- loop
+function warmup(n){ for(let i=0;i<n;i++) step(); }   // start at a realistic working state
+function frame(){ if(running){ for(let i=0;i<spd;i++) step(); draw(); } }
+
+newGrid(); warmup(300); draw();
+let timer=setInterval(frame,130);
+
+document.getElementById('toggle').addEventListener('click',e=>{
+  running=!running; e.target.textContent = running?'⏸ Pause':'▶ Resume';
+});
+document.getElementById('reset').addEventListener('click',()=>{
+  newGrid(); warmup(300); draw();
+});
+document.getElementById('speed').addEventListener('input',e=>{ spd=+e.target.value; });
+document.getElementById('drift').addEventListener('input',e=>{ drift=+e.target.value; });
+
+if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+  running=false; document.getElementById('toggle').textContent='▶ Resume';
+}
+</script>

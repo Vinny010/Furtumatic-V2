@@ -1,0 +1,9 @@
+{
+  "$comment": "Bitcoin Puzzle targets - the PUBLIC, funded challenge (privatekeys.pw/puzzles). Each puzzle #n has its private key uniformly random in [2^(n-1), 2^n). These addresses have NO exposed public key (never spent from), so Kangaroo cannot run and address brute force is the only method - which also means a solo rig is not structurally behind a Kangaroo farm on these. Addresses transcribed from privatekeys.pw. SOLO consented public challenge only; do not point tooling at any non-puzzle address.",
+  "source": "privatekeys.pw/puzzles/bitcoin-puzzle-tx",
+  "puzzles": {
+    "71": {"bits": 71, "address": "1PWo3JeB9jrGwfHDNpdGK54CRas7fsVzXU", "reward_btc": 7.10185241, "status": "unsolved"},
+    "72": {"bits": 72, "address": "1JTK7s9YVYywfm5XUH7RNhHJH1LshCaRFR", "reward_btc": 7.20014379, "status": "unsolved"},
+    "73": {"bits": 73, "address": "12VVRNPi4SJqUTsp6FmqDqY5sGosDtysn4", "reward_btc": 7.30000000, "status": "unsolved"}
+  }
+}

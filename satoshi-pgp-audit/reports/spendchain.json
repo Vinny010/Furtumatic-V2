@@ -1,0 +1,22 @@
+{
+  "transactions": 5,
+  "txids_authenticated": 5,
+  "signatures": 5,
+  "verified": 5,
+  "distinct_r": 5,
+  "reused_nonce_pairs": 0,
+  "nonce_safe": true,
+  "signing_pubkey": "0411db93e1dcdb8a016b49840f8c53bc1eb68a382e97b1482ecad7b148a6909a5cb2e0eaddfb84ccf9744464f82e160bfa9b8b64f9d4c03f999b8643f656b412a3",
+  "r_values": [
+    "4e45e16932b8af514961a1d3a1a25fdf3f4f7732e9d624c6c61548ab5fb8cd41",
+    "27542a94d6646c51240f23a76d33088d3dd8815b25e9ea18cac67d1171a3212e",
+    "1f27e51caeb9a0988a1e50799ff0af94a3902403c3ad4068b063e7b4d1b0a767",
+    "52ffc1929a2d8bd365c6a2a4e3421711b4b1e1b8781698ca9075807b4227abcb",
+    "c12a7d54972f26d14cb311339b5122f8c187417dde1e8efb6841f55c34220ae0"
+  ],
+  "notes": [
+    "All 5 transactions authenticated locally: the raw bytes double-SHA-256 to the expected txids, so no trust in the data's source is required.",
+    "All 5 signatures verify against the key, confirming both the digest reconstruction and that this key produced them.",
+    "5 signatures, 5 distinct nonces: no reuse. The one Satoshi-attributed key that ever signed more than once did so safely, so the closed-form nonce-reuse attack does not apply to it."
+  ]
+}

@@ -1,0 +1,56 @@
+# Reproducible build of the historical GnuPG 1.4.7 (released 2007-03-05).
+#
+# Source provenance: the official GnuPG git mirror at a PINNED tag and commit.
+# Pinning by git object id is stronger than a tarball checksum, because the commit
+# and tree ids are content-addressed over the entire source tree - a tampered file
+# anywhere changes the tree hash.
+#
+# GnuPG's canonical tarball host is gnupg.org; where it is reachable, the tarball
+# and its checksum can be cross-checked with tools/verify_tarball.sh.
+
+FROM debian:bullseye-slim
+
+ARG GNUPG_TAG=gnupg-1.4.7
+ARG GNUPG_COMMIT=7cb81bb3ef2769812678719d440aa844c0bb889a
+ARG GNUPG_TREE=c9cb62c8dcee5935c4ad86b190d171beec5035d0
+ARG GNUPG_REPO=https://github.com/gpg/gnupg.git
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        build-essential git ca-certificates \
+        autoconf automake libtool autopoint gettext texinfo \
+        zlib1g-dev libbz2-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /src
+RUN git clone --filter=blob:none --no-checkout "${GNUPG_REPO}" gnupg \
+    && cd gnupg \
+    && git checkout -q "${GNUPG_TAG}" \
+    && test "$(git rev-parse HEAD)" = "${GNUPG_COMMIT}" \
+    && test "$(git rev-parse HEAD^{tree})" = "${GNUPG_TREE}" \
+    && echo "provenance verified: commit ${GNUPG_COMMIT}"
+
+# 2007 C against a modern toolchain needs the old dialect and relaxed diagnostics.
+# These flags affect diagnostics and language dialect only - not the semantics of
+# cipher/random.c or cipher/dsa.c, which is what the experiments depend on.
+ENV HIST_CFLAGS="-O2 -w -std=gnu89 -fcommon -Wno-implicit-function-declaration -Wno-int-conversion -Wno-incompatible-pointer-types"
+
+WORKDIR /src/gnupg
+RUN ./autogen.sh \
+    && ./configure --disable-nls --disable-card-support --disable-gnupg-iconv \
+                   --without-readline --disable-asm \
+    # The texinfo manual fails to build against modern makeinfo and is irrelevant
+    # to the cryptographic code, so g10/ is built directly.
+    && make -C util  CFLAGS="${HIST_CFLAGS}" \
+    && make -C mpi   CFLAGS="${HIST_CFLAGS}" \
+    && make -C cipher CFLAGS="${HIST_CFLAGS}" \
+    && make -C zlib  CFLAGS="${HIST_CFLAGS}" \
+    && make -C g10   CFLAGS="${HIST_CFLAGS}" \
+    && install -m 0755 g10/gpg /usr/local/bin/gpg147 \
+    && gpg147 --version | head -2 \
+    && sha256sum /usr/local/bin/gpg147 | tee /usr/local/share/gpg147.sha256
+
+ENV SPA_GPG147=/usr/local/bin/gpg147
+ENV SPA_GNUPG_SRC=/src/gnupg
+CMD ["gpg147", "--version"]

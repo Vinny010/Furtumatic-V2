@@ -1,0 +1,25 @@
+
+GENERATED 1,000,000,000 keys in 5284s (189,247 keys/s)
+
+== 1. BIT BALANCE: address bits ones-fraction 0.49996..0.50005, max |z| 3.12
+== 2. KEY-BIT x ADDRESS-BIT SWEEP: 11,200 tests | max |z| 4.26 | beyond 5 sigma: 0 (chance ~0.0064) | 5-sigma floor = 0.0158% bias
+     top-8 key bits (which half/quarter/eighth... of range) vs address: max |z| 3.86
+== 3. ADDRESS BIT-PAIR DEPENDENCE: 12,720 pairs | max |z| 3.95 | beyond 5 sigma: 0
+== 4. LATTICE: 2D (byte0 k, byte0 k+1): chi2 65,167 on 65,535 dof (expect ~65,535 +- 362) -> z = -1.02
+     3D (256^3 cells, ~60 per cell): chi2 16,780,133 on 16,777,215 dof -> z = 0.50; empty cells 0 (expect ~0)
+== 5. BATTERY: byte histogram chi2 292.6 on 255 dof (z=1.66); 16-bit pair chi2 65,048 on 65,535 dof (z=-1.35)
+     runs per address: mean 79.500 (expect 79.5), std 6.305 (expect 6.30)
+     neighbour address distance k,k+1: mean 80.000 (expect 80.000), std 6.325 (expect 6.325)
+== 6. HEX DIGIT x KEY BIT (top-4 & low-4 key bits): 320 tests | min p 3.15e-03 (chance-level minimum ~3.1e-03) | Bonferroni flags 0
+== 7. ML (random split, 2,000,000 subsample: 1,500,000 train / 500,000 test) ==
+     which HALF of #71 range (key bit 2^69) from 160 address bits: 50.03%  (majority-class baseline 50.01%, +-0.14%)
+     which QUARTER (top 2 key bits), 4-class: 24.94%  (majority-class baseline 25.03%, +-0.12%)
+     lowest key bit 2^0: 49.97%  (majority-class baseline 50.08%, +-0.14%)
+     middle key bit 2^34: 50.14%  (majority-class baseline 50.11%, +-0.14%)
+== 8. CONTROLS ==
+     planted 0.5% leak on the subsample: z = 14.0 sigma
+          planted: which half: 50.21%  (majority-class baseline 50.01%, +-0.14%)
+     random bytes: z = 1.4 sigma
+          random: which half: 50.05%  (majority-class baseline 50.01%, +-0.14%)
+
+total 5552s

@@ -1,0 +1,5 @@
+cache/
+run.log
+followup.log
+results/
+__pycache__/

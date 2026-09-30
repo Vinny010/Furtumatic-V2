@@ -1,0 +1,32 @@
+Related-key scan over a pay-to-public-key corpus
+==========================================================================
+
+Tests whether any two private keys differ by a small offset. If so,
+P_j = P_i + delta*G, which is visible from public keys alone. This is the
+failure class behind the Debian OpenSSL and Android SecureRandom losses.
+
+corpus            : /home/user/bensig/patoshi-addresses/patoshi_pubkeys_COMPLETE.csv
+keys loaded       : 21953
+delta range       : 1 .. 2048
+positive control  : injected pair with delta=7
+
+  delta <= 256      20.8s   relations found: 1
+  delta <= 512      41.3s   relations found: 1
+  delta <= 768      62.6s   relations found: 1
+  delta <= 1024     83.6s   relations found: 1
+  delta <= 1280    104.4s   relations found: 1
+  delta <= 1536    125.1s   relations found: 1
+  delta <= 1792    145.8s   relations found: 1
+  delta <= 2048    166.7s   relations found: 1
+
+keys scanned      : 21955
+off-curve entries : 0
+duplicate keys    : 0
+elapsed           : 166.7s
+
+POSITIVE CONTROL detected : YES
+
+RELATED KEYS AMONG REAL CORPUS : 0
+
+note: No duplicate keys and no related keys within delta <= 2048. This rules out sequential, incrementing and small-offset key generation across the corpus - a whole class of generator defect, excluded by measurement rather than assumption.
+wrote reports/related_keys.json

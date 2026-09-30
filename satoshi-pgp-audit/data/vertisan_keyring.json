@@ -1,0 +1,84 @@
+{
+  "$comment": "Keyring transcribed from four screenshots in a YouTube community post by 'James Vertisan a.k.a. Satoshi Nakamoto' (post id UgkxYMTJquHQTR8WF3_HcTHeUfkISGiRpLGP), plus one fingerprint from an earlier user note. UNTRUSTED, user-supplied, transcribed by eye from images - not parsed from key files. Algorithm is recorded ONLY where the keyserver listing or certificate view actually showed it; where it was not visible it is left null and the entry is reported UNVERIFIED rather than flagged. A key is called BACKDATED only when its own algorithm could not exist on its claimed creation date - a hard contradiction, not an inference from the name or date alone.",
+  "source": "https://youtube.com/post/UgkxYMTJquHQTR8WF3_HcTHeUfkISGiRpLGP",
+  "captured_utc": "2026-08-21",
+  "entries": [
+    {
+      "label": "Satoshi Nakamoto (primary)",
+      "uid": "Satoshi Nakamoto",
+      "fingerprint": "5B483D0817614D30A775A1507EEDA8009DFEF627",
+      "key_id": "7EEDA8009DFEF627",
+      "pubkey_algo": 22,
+      "algo_name_shown": "eddsa263 (Ed25519)",
+      "claimed_created": "2008-08-09",
+      "claimed_created_year": 2008,
+      "hash_algos": [10],
+      "source": "keyserver listing (4/4) + Kleopatra certificate view (1/4)"
+    },
+    {
+      "label": "Satoshi Nakamoto (encryption subkey)",
+      "fingerprint": "4BFEA25B5480C21680EDB0732D49A7A3753FE656",
+      "key_id": "2D49A7A3753FE656",
+      "pubkey_algo": 18,
+      "algo_name_shown": "ecdh263 (Curve25519)",
+      "claimed_created": "2008-08-09",
+      "claimed_created_year": 2008,
+      "source": "keyserver listing (4/4)"
+    },
+    {
+      "label": "Satoshi - BitCoin Email",
+      "uid": "satoshi@bitcoin.org",
+      "key_id": "4444921F9B0D536B",
+      "fingerprint": "1E070C7E437D91E61CB4DF5C4444921F9B0D536B",
+      "pubkey_algo": 22,
+      "algo_name_shown": "EdDSA (algorithm 22)",
+      "claimed_created": "2008-11-18",
+      "claimed_created_year": 2008,
+      "source": "certificate list (2/4, 3/4) + earlier user note; a James signature from this key is dated 2024-11-08"
+    },
+    {
+      "label": "Satoshi Publish",
+      "key_id_partial": "D9163...",
+      "pubkey_algo": null,
+      "claimed_created": "2008-11-03",
+      "claimed_created_year": 2008,
+      "source": "certificate list (2/4, 3/4) - algorithm not visible"
+    },
+    {
+      "label": "The CREATOR",
+      "key_id_partial": "46FC4...",
+      "pubkey_algo": null,
+      "claimed_created": "2008-08-09",
+      "claimed_created_year": 2008,
+      "source": "certificate list (2/4, 3/4) - algorithm not visible"
+    },
+    {
+      "label": "Vertisan",
+      "key_id_partial": "95BA6...",
+      "pubkey_algo": null,
+      "claimed_created": "2011-03-22",
+      "claimed_created_year": 2011,
+      "source": "certificate list (2/4, 3/4) - algorithm not visible"
+    },
+    {
+      "label": "Vertisan Secure",
+      "uid": "secure@vertisan.com",
+      "key_id_partial": "4CE5B...",
+      "pubkey_algo": null,
+      "claimed_created": "2024-01-19",
+      "claimed_created_year": 2024,
+      "expires": "2032-01-17",
+      "source": "certificate list (2/4, 3/4) - algorithm not visible"
+    },
+    {
+      "label": "VFN Global",
+      "uid": "secure@vfn.global",
+      "key_id_partial": "C4214...",
+      "pubkey_algo": null,
+      "claimed_created": "2024-01-19",
+      "claimed_created_year": 2024,
+      "expires": "2032-01-17",
+      "source": "certificate list (2/4, 3/4) - algorithm not visible"
+    }
+  ]
+}

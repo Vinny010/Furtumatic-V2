@@ -1,0 +1,25 @@
+# Full analysis + reproduction lab: historical GnuPG 1.4.7 plus the Python toolchain.
+FROM satoshi-pgp-audit/gnupg147:latest AS historical
+
+FROM debian:bullseye-slim
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        python3 python3-pip gcc libc6-dev git make ca-certificates gnupg \
+    && rm -rf /var/lib/apt/lists/*
+
+# The historical binary and its exact source tree, carried over unmodified.
+COPY --from=historical /usr/local/bin/gpg147 /usr/local/bin/gpg147
+COPY --from=historical /usr/local/share/gpg147.sha256 /usr/local/share/gpg147.sha256
+COPY --from=historical /src/gnupg /opt/gnupg-src
+
+WORKDIR /app
+COPY requirements.txt ./
+RUN pip3 install --no-cache-dir -r requirements.txt
+COPY . .
+
+ENV PYTHONPATH=/app/src
+ENV SPA_GPG147=/usr/local/bin/gpg147
+ENV SPA_GNUPG_SRC=/opt/gnupg-src
+
+RUN python3 -m spa.cli verify-provenance
+CMD ["python3", "-m", "spa.cli", "report"]
