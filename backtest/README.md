@@ -33,7 +33,7 @@ python -m backtest.run --data bars.csv
 ```
 
 `bars.csv` should be 1-minute bars with `time,open,high,low,close[,volume]`
-columns (TradingView exports and histdata.com files are also read). The last 30%
+columns (TradingView, histdata.com and MetaTrader 5 exports are also read; for MT5 pass the broker server timezone with `--src-tz`). The last 30%
 of the history is held out and reported separately; judge the strategy on that row.
 
 ## Rules for using the results

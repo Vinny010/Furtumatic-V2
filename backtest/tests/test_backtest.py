@@ -145,3 +145,14 @@ def test_fbo_uses_no_future_bars():
     full = fbo_signals(b, SMALL)
     cut = fbo_signals(b.iloc[:-1], SMALL)
     assert [(s.t, s.price, s.stop) for s in cut] == [(s.t, s.price, s.stop) for s in full]
+
+
+def test_mt5_export_is_read_in_new_york_time(tmp_path):
+    from backtest.data import load_bars
+    f = tmp_path / "US100_M1.csv"
+    f.write_text("<DATE>\t<TIME>\t<OPEN>\t<HIGH>\t<LOW>\t<CLOSE>\t<TICKVOL>\t<VOL>\t<SPREAD>\n"
+                 "2024.01.03\t16:30:00\t100.0\t101.0\t99.0\t100.5\t50\t0\t12\n"
+                 "2024.01.03\t16:31:00\t100.5\t101.5\t100.0\t101.0\t40\t0\t12\n")
+    b = load_bars(str(f), src_tz="Europe/Athens")   # typical GMT+2/+3 broker server time
+    assert b.index[0].strftime("%Y-%m-%d %H:%M") == "2024-01-03 09:30"
+    assert b["close"].tolist() == [100.5, 101.0] and b["volume"].tolist() == [50.0, 40.0]

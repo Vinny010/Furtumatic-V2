@@ -18,7 +18,9 @@ def load_bars(path: str, src_tz: str = "UTC") -> pd.DataFrame:
       * generic CSVs with a header (time/open/high/low/close[/volume]), where
         time is ISO text or unix seconds (TradingView exports look like this);
       * histdata.com "generic ASCII" files (no header, ';' separated,
-        `YYYYMMDD HHMMSS` in fixed EST with no daylight saving).
+        `YYYYMMDD HHMMSS` in fixed EST with no daylight saving);
+      * MetaTrader 5 bar exports (`<DATE> <TIME> <OPEN> ...`), whose times are
+        in the broker's server timezone: pass it as `src_tz`.
 
     `src_tz` is the timezone of naive timestamps in a generic CSV.
     """
@@ -30,6 +32,15 @@ def load_bars(path: str, src_tz: str = "UTC") -> pd.DataFrame:
         t = pd.to_datetime(df["time"], format="%Y%m%d %H%M%S")
         # histdata uses EST without DST, i.e. a fixed UTC-5 offset
         idx = pd.DatetimeIndex(t).tz_localize("Etc/GMT+5").tz_convert(NY)
+    elif first.startswith("<DATE>"):
+        # MetaTrader 5 export: tab separated, times in the broker's server time
+        df = pd.read_csv(path, sep="\t")
+        df.columns = [c.strip("<>").lower() for c in df.columns]
+        t = pd.to_datetime(df["date"] + " " + df["time"], format="%Y.%m.%d %H:%M:%S")
+        idx = pd.DatetimeIndex(t).tz_localize(src_tz, ambiguous="NaT", nonexistent="NaT").tz_convert(NY)
+        df["volume"] = df["tickvol"]
+        df = df[idx.notna()]
+        idx = idx[idx.notna()]
     else:
         df = pd.read_csv(path)
         df.columns = [c.strip().lower() for c in df.columns]
